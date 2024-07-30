@@ -25,33 +25,33 @@ namespace Client
         {
             if (Console.KeyAvailable)
             {
-                Console.ForegroundColor = ConsoleColor.Black;
                 ConsoleKeyInfo keyInfo = Console.ReadKey();
                 if(keyInfo.Key == ConsoleKey.Enter)
                 {
                     MessageHolder.SendQueue.Enqueue(_message.ToString());
                     _message.Clear();
-                    _printInput = true;
                 }
                 else if(keyInfo.Key == ConsoleKey.Backspace)
                 {
                     if (_message.Length > 0)
                     {
                         _message.Length--;
-                        _printInput = true;
                     }
                 }
                 else
                 {
-                    if (_message.Length / ChatConfig.InputWidth < ChatConfig.InputMaxHeight)
+                    if (_message.Length < ChatConfig.InputMaxHeight * ChatConfig.InputWidth)
                     {
                         _message.Append(keyInfo.KeyChar);
-                        _printInput = true;
+                    }
+                    else
+                    {
+                        Console.ForegroundColor = ConsoleColor.Black;
+                        Console.SetCursorPosition(0, _inputLine + 1);
                     }
                 }
-
+                _printInput = true;
             }
-
         }
 
         public void PrintInput()
@@ -91,7 +91,21 @@ namespace Client
                 _inputLine += boxHeight;
             }
 
-            if (id != _userId)
+            if (id == "0")
+            {
+                int left = ChatConfig.LineLeftBorder + ChatConfig.MessageConfig.TextBoxPadding;
+
+                Console.ForegroundColor = ConsoleColor.Gray;
+                PrintTextBox(ChatConfig.LineLeftBorder, _currentLine,
+                    ChatConfig.InputWidth + ChatConfig.BorderThickness * 2 + ChatConfig.MessageConfig.TextLeftPadding * 2, boxHeight);
+
+                Console.SetCursorPosition(left + ChatConfig.MessageConfig.UserNamePadding, _currentLine);
+                Console.Write(" " + userName + " ");
+
+                Console.ForegroundColor = ConsoleColor.Gray;
+                PrintText(text, ChatConfig.InputWidth, left + ChatConfig.MessageConfig.TextLeftPadding, _currentLine + 1);
+            }
+            else if (id != _userId)
             {
                 int left = ChatConfig.LineLeftBorder + ChatConfig.MessageConfig.TextBoxPadding;
 
@@ -149,7 +163,7 @@ namespace Client
             }
             
             Console.SetCursorPosition(left, top + line);
-            Console.WriteLine(text.Substring(index));
+            Console.Write(text.Substring(index));
         }
 
         private void PrintTextBox(int left, int top, int width, int height)
@@ -173,10 +187,21 @@ namespace Client
             Console.Write(ChatConfig.TextBoxConfig.CornerRightDown);
         }
 
+        private void PrintLogo()
+        {
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.WriteLine(ChatConfig.Logo);
+            _currentLine = Console.GetCursorPosition().Top;
+        }
+
         public void Start()
         {
             Console.Clear();
+            Console.SetWindowSize(ChatConfig.Width, ChatConfig.Height);
+            Console.SetBufferSize(ChatConfig.Width, Console.BufferHeight);
+            PrintLogo();
             PrintInput();
+
 
             while (true)
             {
@@ -198,6 +223,7 @@ namespace Client
 
                     receivedMessage = null; 
                 }
+
                 ReadInput();
                 if(_printInput) PrintInput();
             }
@@ -207,16 +233,27 @@ namespace Client
     public static class ChatConfig
     {
      
-        public const int Width =50;
+        public const int Width =53;
         public const int Height = 40;
 
         public const int LineLeftBorder = 1;
-        public const int LineRightBorder = 49;
+        public const int LineRightBorder = 52;
         
         public const int InputWidth = LineRightBorder - LineLeftBorder - 2*BorderThickness - 2*MessageConfig.TextLeftPadding;
         public const int InputMaxHeight = 3;
         
         public const int BorderThickness = 1;
+
+        public const string Logo = @"
+     _____                                        
+    / ___/____  ____ _______________ _      __    
+    \__ \/ __ \/ __ `/ ___/ ___/ __ \ | /| / /    
+   ___/ / /_/ / /_/ / /  / /  / /_/ / |/ |/ /     
+  /____/ .___/\__,_/_/  /_/   \____/|__/|__/ \      
+   _  /_/  _________________________________\ \     
+  /_________________________________________/ /
+                                           /_/
+";
 
 
 

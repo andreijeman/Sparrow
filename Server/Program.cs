@@ -1,13 +1,24 @@
-﻿namespace Server
+﻿using System.Net;
+
+namespace Server
 {
     internal class Program
     {
         static void Main(string[] args)
         {
-            Server server = new Server(11111);
+            Console.WriteLine("Server Ip: " + Dns.GetHostEntry(Dns.GetHostName()).AddressList[1].ToString());
+            int port;
+            do 
+            {
+                Console.Write("Enter port: ");
+            }while(!int.TryParse(Console.ReadLine(), out port));
+
+            Server server = new Server(port);
             server.Start();
 
-            Console.ReadLine();
+            Console.WriteLine("Server is running.");
+            Console.WriteLine("Press Esc to close.");
+            while (Console.ReadKey().Key != ConsoleKey.Escape); 
         }
     }
 }

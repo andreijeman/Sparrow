@@ -14,6 +14,7 @@ namespace Server
         private Socket _serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
         private readonly int _port;
         private readonly List<Socket> _clients = new List<Socket>();
+        private int _lastId = 0;
 
         public Server(int port)
         {
@@ -25,7 +26,6 @@ namespace Server
             try
             {
                 IPEndPoint endPoint = new IPEndPoint(Dns.GetHostEntry(Dns.GetHostName()).AddressList[1], _port);
-                Console.WriteLine(Dns.GetHostEntry(Dns.GetHostName()).AddressList[1].ToString());
                 _serverSocket.Bind(endPoint);
                 _serverSocket.Listen(10);
 
@@ -66,9 +66,14 @@ namespace Server
         private void HandleClient(Socket clientSocket)
         {
             string? name = ReceiveMessage(clientSocket);
-            string id = _clients.Count.ToString();
+            string id;
+            lock (_clients)
+            {
+                id = (++_lastId).ToString();
+            }
             SendMessage(clientSocket, id);
-            
+            BroadcastMessage("0" + "?" + "Server" + "?" + $"User with Name:{name} and Id:{id} has connected");
+
             try
             {
                 byte[] buffer = new byte[1024];
@@ -94,6 +99,8 @@ namespace Server
 
                 clientSocket.Shutdown(SocketShutdown.Both);
                 clientSocket.Close();
+
+                BroadcastMessage(id + "?" + "Server" + "?" + $"User with Name:{name}, Id:{id} has disconnected");
             }
         }
 
