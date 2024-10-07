@@ -27,18 +27,15 @@ namespace Client
             while(!_clientSocket.Connected)
             {
 
-                while (true)
+                do
                 {
                     Console.Write("Enter server Ip: ");
-                    if (IPAddress.TryParse(Console.ReadLine(), out ip)) break;
+                } while (!IPAddress.TryParse(Console.ReadLine(), out ip));
 
-                }
-
-                while(true)
+                do
                 {
                     Console.Write("Enter server port: ");
-                    if (int.TryParse(Console.ReadLine(), out port)) break;
-                }
+                } while (!int.TryParse(Console.ReadLine(), out port));
 
                 try
                 {
@@ -46,52 +43,44 @@ namespace Client
                     _clientSocket.Connect(serverEndPoint);
 
                 }
-                catch (Exception ex)
+                catch
                 {
-                    Console.WriteLine("Exception: " + ex.Message);
+                    Console.WriteLine("Connection failed");
                 }
             }
         }
 
-        public string SignIn()
+        public void SignIn()
         {
             string? name = null;
-            string? id = null;
-            while(name is null)
+            do
             {
                 Console.Write("Enter your name: ");
                 name = Console.ReadLine();
-            }
+            } while (string.IsNullOrEmpty(name));
 
-            do
-            {
-                SendMessage(name);
-                id = ReceiveMessage();
 
-            } while ( id is null);
-            Console.WriteLine(id);
-            return id;
+            SendMessage(name);
         }
 
         public void SendMessageLoop()
         {
-            string? message = null;
-            bool send = false;
+            string? message;
             while(_clientSocket.Connected)
             {
+                message = null; 
+
                 lock(MessageHolder.SendQueue)
                 {
                     if (MessageHolder.SendQueue.Count > 0)
                     {
                         message = MessageHolder.SendQueue.Dequeue();
-                        send = true;
                     }
                 }
 
-                if (send)
+                if (!string.IsNullOrEmpty(message))
                 {
-                    SendMessage(message!);
-                    send = false;
+                    SendMessage(message);
                 }
             }
         }
@@ -102,9 +91,9 @@ namespace Client
             {
                 _clientSocket.Send(Encoding.ASCII.GetBytes(message));
             }
-            catch (Exception ex)
+            catch
             {
-                Console.WriteLine("Exception: " + ex.Message);
+                Console.WriteLine("Send message failed");
             }
         }
 
@@ -128,15 +117,16 @@ namespace Client
         public string? ReceiveMessage()
         {
             string? message = null;
+            byte[] buffer = new byte[1024];
+
             try
             {
-                byte[] buffer = new byte[1024];
                 int count = _clientSocket.Receive(buffer);
-                message =  Encoding.ASCII.GetString(buffer, 0, count);
+                message = Encoding.ASCII.GetString(buffer, 0, count);
             }
-            catch (Exception ex)
+            catch
             {
-                Console.WriteLine("Exception: " + ex.Message);
+                Console.WriteLine("Receive message failed");
             }
 
             return message;
