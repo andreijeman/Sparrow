@@ -18,9 +18,17 @@ namespace Client
 
             public static readonly char[] BoxTemplate = { '─', '│', '┌', '┐', '┘', '└' };
 
-            public const ConsoleColor TextColor = ConsoleColor.Gray;
-            public const ConsoleColor BoxColor = ConsoleColor.White;
-        
+            public const ConsoleColor MyMessageTextColor = ConsoleColor.Gray;
+            public const ConsoleColor MyMessageBoxColor = ConsoleColor.Magenta;
+
+            public const ConsoleColor ReceivedMessageTextColor = ConsoleColor.Gray;
+            public const ConsoleColor ReceivedMessageBoxColor = ConsoleColor.Blue;
+
+            public const bool MessageRandomColor = false;
+
+            public const int RightLimit = 0;
+            public const int LeftLimit = 100;
+
             public const string Logo = @"
      _____                                        
     / ___/____  ____ _______________ _      __    
