@@ -6,13 +6,8 @@ namespace Client
     {
         static void Main(string[] args)
         {
-            PrintService.GetBorderedTextImage(
-                Config.Chat.MessageBoxMinWidth, Config.Chat.MessageBoxMaxWidth,
-                Config.Chat.MessageBoxMinHeight, Config.Chat.MessageBoxMaxHeight,
-                Config.Chat.BorderTemplate, Config.Chat.MyMessageBoxColor,
-                "123456789qwertyuiopdddddddddddddddddddddddddddddddddddddddddddddddddddddd", Config.Chat.MyMessageTextColor
-                ).Print(0, 0);
-
+            Chat.PrintSendedMessage(12, 0, "Test\nsfadfddsfdsdsfdsfdsfdsfdsfdsfdsfsdfsdfsdfdsfsagfad\nedfsafxdfdf", "123456789");
+            Chat.PrintReceivedMessage(12, 10, "Testd", "123456789");
 
             Console.ReadKey();
         }

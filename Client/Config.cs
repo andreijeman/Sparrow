@@ -10,21 +10,23 @@ namespace Client
     {
         public static class Chat
         {
-            public const int MessageBoxMinWidth = 10;
+            public static readonly char[] BorderTemplate = { '─', '│', '┌', '┐', '┘', '└' };
+
+            public const int MessageBoxMinWidth = 20;
             public const int MessageBoxMaxWidth = 40;
 
             public const int MessageBoxMinHeight = 1;
             public const int MessageBoxMaxHeight = 40;
 
-            public static readonly char[] BorderTemplate = { '─', '│', '┌', '┐', '┘', '└' };
+            public const ConsoleColor SendedTextColor = ConsoleColor.Gray;
+            public const ConsoleColor SendedTextBorderColor = ConsoleColor.Magenta;
 
-            public const ConsoleColor MyMessageTextColor = ConsoleColor.Gray;
-            public const ConsoleColor MyMessageBoxColor = ConsoleColor.Magenta;
+            public const ConsoleColor ReceivedTextColor = ConsoleColor.Gray;
+            public const ConsoleColor ReceivedTextBorderColor = ConsoleColor.Blue;
 
-            public const ConsoleColor ReceivedMessageTextColor = ConsoleColor.Gray;
-            public const ConsoleColor ReceivedMessageBoxColor = ConsoleColor.Blue;
+            
 
-            public const bool MessageRandomColor = false;
+            public const bool ActivateRandomColor = true;
 
             public const int RightLimit = 0;
             public const int LeftLimit = 100;

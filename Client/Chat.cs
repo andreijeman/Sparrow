@@ -28,24 +28,36 @@ namespace Client
 
         }
 
-/*        public static void PrintMessage(int left, int top, string text, string senderInfo, ConsoleColor textColor, ConsoleColor boxColor)
+        public static void PrintSendedMessage(int left, int top, string text, string senderInfo)
         {
-            var boxSize = PrintService.PrintTextInBox(
-                            left, top, 
-                            Config.Chat.MessageBoxMinWidth, Config.Chat.MessageBoxMaxWidth,
-                            Config.Chat.MessageBoxMinHeight, Config.Chat.MessageBoxMaxHeight,
-                            Config.Chat.BoxTemplate, boxColor, 
-                            text, textColor);
+            PrintService.Image image = PrintService.GetBorderedTextImage(
+                senderInfo.Length, Config.Chat.MessageBoxMaxWidth,
+                Config.Chat.MessageBoxMinHeight, Config.Chat.MessageBoxMaxHeight,
+                Config.Chat.BorderTemplate, Config.Chat.SendedTextBorderColor,
+                text, Config.Chat.SendedTextColor); 
 
-            int margin = 3;
-            int diff = boxSize.BoxWidth - 2 * margin - senderInfo.Length;
-            int dist = diff > 0 ? diff/2 + margin: margin;
-            
-            var textSize = PrintService.PrintTextInRange(left + dist, top, boxSize.BoxWidth - 2 * dist, 1, senderInfo, boxColor);
 
-            PrintService.PrintPoint(left + dist - 1, top, ' ');
-            PrintService.PrintPoint(left + dist + textSize.TextWidth, top, ' ');
-        }*/
+            var fittedText = PrintService.GetFittedText(image.Width  - 6, 1, senderInfo);
+            PrintService.PrintLine(image.Width - fittedText.Width - 4, 0, " " + fittedText.Lines[0] + " ", Config.Chat.SendedTextBorderColor, image);
+
+            image.Print(left, top);
+        }
+
+        public static void PrintReceivedMessage(int left, int top, string text, string senderInfo)
+        {
+            PrintService.Image image = PrintService.GetBorderedTextImage(
+                senderInfo.Length, Config.Chat.MessageBoxMaxWidth,
+                Config.Chat.MessageBoxMinHeight, Config.Chat.MessageBoxMaxHeight,
+                Config.Chat.BorderTemplate, 
+                Config.Chat.ReceivedTextBorderColor,
+                text, Config.Chat.ReceivedTextColor);
+
+
+            var fittedText = PrintService.GetFittedText(image.Width - 6 , 1, senderInfo);
+            PrintService.PrintLine(2, 0, " " + fittedText.Lines[0] + " ", Config.Chat.ReceivedTextBorderColor, image);
+
+            image.Print(left, top);
+        }
 
 
     }

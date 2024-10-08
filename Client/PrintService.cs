@@ -127,7 +127,7 @@ namespace Client
             } 
         }
 
-        public static ConsoleColor GenerateColorFromText(string text)
+        public static ConsoleColor GetColorFromText(string text)
         {
             if (string.IsNullOrEmpty(text))
             {
