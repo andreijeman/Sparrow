@@ -16,7 +16,7 @@ namespace Client
             public const int MessageBoxMinHeight = 1;
             public const int MessageBoxMaxHeight = 40;
 
-            public static readonly char[] BoxTemplate = { '─', '│', '┌', '┐', '┘', '└' };
+            public static readonly char[] BorderTemplate = { '─', '│', '┌', '┐', '┘', '└' };
 
             public const ConsoleColor MyMessageTextColor = ConsoleColor.Gray;
             public const ConsoleColor MyMessageBoxColor = ConsoleColor.Magenta;
