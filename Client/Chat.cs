@@ -9,6 +9,7 @@ namespace Client
 {
     public class Chat
     {
+        int curreLine;
        
         public void Start()
         {
@@ -28,24 +29,29 @@ namespace Client
 
         }
 
+        public static void PrintMessageEvent(string text, string senderInfo)
+        {
+
+        }
+
         public static void PrintSendedMessage(int left, int top, string text, string senderInfo)
         {
-            PrintService.Image image = PrintService.GetBorderedTextImage(
+            Image image = ImageUtil.GetBorderedTextImage(
                 senderInfo.Length, Config.Chat.MessageBoxMaxWidth,
                 Config.Chat.MessageBoxMinHeight, Config.Chat.MessageBoxMaxHeight,
                 Config.Chat.BorderTemplate, Config.Chat.SendedTextBorderColor,
                 text, Config.Chat.SendedTextColor); 
 
 
-            var fittedText = PrintService.GetFittedText(image.Width  - 6, 1, senderInfo);
-            PrintService.PrintLine(image.Width - fittedText.Width - 4, 0, " " + fittedText.Lines[0] + " ", Config.Chat.SendedTextBorderColor, image);
+            var fittedText = ImageUtil.GetFittedText(image.Width  - 6, 1, senderInfo);
+            ImageUtil.PrintLine(image.Width - fittedText.Width - 4, 0, " " + fittedText.Lines[0] + " ", Config.Chat.SendedTextBorderColor, image);
 
             image.Print(left, top);
         }
 
         public static void PrintReceivedMessage(int left, int top, string text, string senderInfo)
         {
-            PrintService.Image image = PrintService.GetBorderedTextImage(
+            Image image = ImageUtil.GetBorderedTextImage(
                 senderInfo.Length, Config.Chat.MessageBoxMaxWidth,
                 Config.Chat.MessageBoxMinHeight, Config.Chat.MessageBoxMaxHeight,
                 Config.Chat.BorderTemplate, 
@@ -53,8 +59,8 @@ namespace Client
                 text, Config.Chat.ReceivedTextColor);
 
 
-            var fittedText = PrintService.GetFittedText(image.Width - 6 , 1, senderInfo);
-            PrintService.PrintLine(2, 0, " " + fittedText.Lines[0] + " ", Config.Chat.ReceivedTextBorderColor, image);
+            var fittedText = ImageUtil.GetFittedText(image.Width - 6 , 1, senderInfo);
+            ImageUtil.PrintLine(2, 0, " " + fittedText.Lines[0] + " ", Config.Chat.ReceivedTextBorderColor, image);
 
             image.Print(left, top);
         }

@@ -7,24 +7,25 @@ namespace Server
     {
         static void Main(string[] args)
         {
-            string ip = Dns.GetHostEntry(Dns.GetHostName()).AddressList[1].ToString();
-            Console.WriteLine("Server Ip: " + ip);
+          
+            //string ip = Dns.GetHostEntry(Dns.GetHostName()).AddressList[1].ToString();
+            //Console.WriteLine("Server Ip: " + ip);
 
-            ReadServerConf(out int port, out int maxClients);
+            //ReadServerConf(out int port, out int maxClients);
 
-            ServerService server = new ServerService(
-                new ServerData(new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp),
-                                ip,
-                                port,
-                                maxClients));
+            //Server server = new Server(
+            //    new ServerData(new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp),
+            //                    ip,
+            //                    port,
+            //                    maxClients));
             
-            server.Start();
+            //server.Start();
 
-            Console.WriteLine("Server is running.");
-            Console.WriteLine("Press Esc to close.");
-            while (Console.ReadKey().Key != ConsoleKey.Escape);
+            //Console.WriteLine("Server is running.");
+            //Console.WriteLine("Press Esc to close.");
+            //while (Console.ReadKey().Key != ConsoleKey.Escape);
 
-            server.Stop();
+            //server.Stop();
         }
 
         public static void ReadServerConf(out int port, out int maxClients)

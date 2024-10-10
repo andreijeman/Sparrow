@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net;
 
 namespace Client
 {
@@ -6,10 +7,13 @@ namespace Client
     {
         static void Main(string[] args)
         {
-            Chat.PrintSendedMessage(12, 0, "Test\nsfadfddsfdsdsfdsfdsfdsfdsfdsfdsfsdfsdfsdfdsfsagfad\nedfsafxdfdf", "123456789");
-            Chat.PrintReceivedMessage(12, 10, "Testd", "123456789");
+            string ip = Console.ReadLine();
+            int port = int.Parse(Console.ReadLine());
+            string username = Console.ReadLine();
+            ClientService client = new ClientService();
 
-            Console.ReadKey();
+            client.ConnectToServer(IPAddress.Parse(ip), port, username);  
+            client.Start();
         }
     }
 }
