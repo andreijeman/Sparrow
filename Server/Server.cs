@@ -2,47 +2,51 @@
 using System.Net;
 
 using NetworkSocket;
+using Logger;
 
 namespace Server
 {
     public class Server
     {
-        private Socket _serverSocket;
-        private IPAddress _serverIp;
-        private int _serverPort;
+        private readonly Socket _serverSocket;
+        private readonly IPAddress _serverIp;
+        private readonly int _serverPort;
 
+        private readonly int _serverMaxConn;
+        private string _serverPassword;
 
-        private Dictionary<string id, Socket socket> _clients;
-        private int _maxClients;
-
+        private List<Socket> _clientSockets;
+        private Dictionary<Socket, string> _usernamesDictionary;
+        
         Postman<Packet> _postman;
+        private ILogger _logger;
 
-        public Server(IPAddress ip, int port, int maxClients)
+        private readonly SemaphoreSlim _semaphore;
+
+        public Server(IPAddress ip, int port, int serverMaxConn, string serverPassword, ILogger logger)
         {
             _serverIp = ip;
             _serverPort = port;
-            _maxClients = maxClients;
+            _serverMaxConn = serverMaxConn;
+            _serverPassword = serverPassword;
+            _logger = logger;
 
             _serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            _clients = new List<ClientData>();
+            _clientSockets = new List<Socket>();
+            _usernamesDictionary = new Dictionary<Socket, string>();
+
             _postman = new Postman<Packet>(new Codec(), 1024);
+            _semaphore = new SemaphoreSlim(1, 1);
         }
 
         public async Task StartAsync()
         {
-            try
-            {
                 IPEndPoint endPoint = new IPEndPoint(_serverIp, _serverPort);
 
                 _serverSocket.Bind(endPoint);
-                _serverSocket.Listen(_maxClients);
+                _serverSocket.Listen(_serverMaxConn);
 
                 await AcceptClientsAsync();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Exception: " + ex.Message);
-            }
         }
 
         private async Task AcceptClientsAsync()
@@ -59,62 +63,112 @@ namespace Server
 
                     _ = Task.Run(async () =>
                     {
-                        ClientData client = await AuthSocketAsync(clientSocket);
-                        await HandleClientAsync(client);
+                        _logger.LogInfo($"New socket({SocketUtils.GetIp(clientSocket)}) connectected.");
+                        await AuthClientAsync(clientSocket);
+                        await HandleClientAsync(clientSocket);
                     });
                 }
                 catch(Exception ex) 
                 {
-                    Console.WriteLine("Exception: " + ex.Message);
+                    _logger.LogError(ex.Message);
                 }
             }
         }
 
-        private async Task<ClientData> AuthSocketAsync(Socket socket)
+        private async Task AuthClientAsync(Socket socket)
         {
+            Packet packet = await _postman.ReceivePacketAsync(socket);
 
-             Packet packet = await _postman.ReceivePacketAsync(socket);
+            if(packet.Data == _serverPassword && !_usernamesDictionary.ContainsValue(packet.Sender))
+            {
+                _ = Task.Run(async () =>
+                {
+                await _semaphore.WaitAsync();
+                try
+                {
+                    _clientSockets.Add(socket);
+                    _usernamesDictionary.Add(socket, packet.Sender);
+                }
+                finally
+                {
+                    _semaphore.Release();
+                }
 
-
-            ClientData client = new ClientData(socket, ip, username);
-
-            lock (_clients) _clients.Add(client);
-
-            Console.WriteLine($"{client.Ip}:{client.Username} connected");
-            SendBroadcastPacket(new ServerPacket(ip, username, $"User {client.Ip}:{client.Username} has connected."));
-
-            return client;
+                _logger.LogInfo($"Socket({SocketUtils.GetIp(socket)}) authenticated.");
+                await _postman.SendPacketAsync(new Packet("Server", PacketType.Data, Status.Ok), socket);
+                await SendBroadcastAsync(new Packet("packet.Sender", PacketType.Connected, ""));
+                });
+            }
+            else
+            {
+                _logger.LogInfo($"Socket({SocketUtils.GetIp(socket)}) authentication rejected. Client: {packet.Sender}.");
+                throw new Exception("Socket authentication rejected");
+            }
+            
         }
 
-        //private async Task HandleClientAsync(ClientData client)
-        //{
-        //    try
-        //    {
-        //        while (client.Socket.Connected)
-        //        {
-        //            ServerPacket packet = ReceivePacket(client);
-        //            SendBroadcastPacket(packet);
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Console.WriteLine("Exception: " + ex.Message);
-        //    }
-        //    finally
-        //    {
-        //        lock (_clients)
-        //        {
-        //            _clients.Remove(client);
-        //        }
+        private async Task HandleClientAsync(Socket socket)
+        {
+            try
+            {
+                while (socket.Connected)
+                {
+                    Packet packet = await _postman.ReceivePacketAsync(socket);
 
-        //        client.Socket.Shutdown(SocketShutdown.Both);
-        //        client.Socket.Close();
+                    _ = Task.Run(async () =>
+                    {
+                        await _semaphore.WaitAsync();
+                        try
+                        {
+                            
+                            SendBroadcastAsync(packet);
+                        }
+                        finally
+                        {
+                            _semaphore.Release();
+                        }
 
-        //        Console.WriteLine($"{client.Ip}:{client.Username} has disconnected.");
-        //        SendBroadcastPacket(new ServerPacket(_server.Ip, "Server", $"User {client.Ip}:{client.Username} has disconnected."));
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Exception: " + ex.Message);
+            }
+            finally
+            {
+                await _semaphore.WaitAsync();
+                try
+                {
+                    _clientSockets.Remove(socket);
+                }
+                finally
+                {
+                    _semaphore.Release();
+                }
 
-        //    }
-        //}
+
+                socket.Shutdown(SocketShutdown.Both);
+                socket.Close();
+
+                _logger.LogInfo($"Socket({SocketUtils.GetIp(socket)}) disconnected.")
+                SendBroadcastAsync(new Packet("Server", PacketType.Disconnected))
+
+            }
+        }
+
+        public async Task SendBroadcastAsync(Packet packet)
+        {
+            await _semaphore.WaitAsync();
+            try
+            {
+                await _postman.SendPacketAsync(new Packet("Server", Command.NewConnection, packet.Sender), _clientSockets);
+            }
+            finally
+            {
+                _semaphore.Release(); 
+            }
+        }
 
 
         //public void Stop()

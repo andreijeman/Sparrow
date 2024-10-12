@@ -19,9 +19,21 @@ namespace NetworkSocket
              return _codec.Unpack(_buffer, 0, count);
         }
 
-        private async Task SendPacketAsync(T data, Socket socket)
+        public async Task SendPacketAsync(T data, Socket socket)
         {
             await socket.SendAsync(_codec.Pack(data));
+        }
+
+        public async Task SendPacketAsync(T data, List<Socket> sockets)
+        {
+            List<Task> tasks = new List<Task>();
+
+            foreach (Socket socket in sockets)
+            {
+                tasks.Add(SendPacketAsync(data, socket));
+            }
+
+            await Task.WhenAll(tasks);
         }
     }
 }

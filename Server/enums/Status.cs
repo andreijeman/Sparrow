@@ -6,5 +6,9 @@ using System.Threading.Tasks;
 
 namespace Server
 {
-    public record Packet(string SenderUsername, string Message);
+    public static class Status
+    {
+        public const string Ok = "Ok";
+        public const string Unauthorized = "Unauthorized";
+    }
 }

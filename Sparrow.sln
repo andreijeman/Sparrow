@@ -11,6 +11,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsoleGraphics", "ConsoleG
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NetworkSocket", "NetworkSocket\NetworkSocket.csproj", "{00C3EE80-90B4-4903-9529-8D58784703AC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Logger", "Logger\Logger.csproj", "{C54404AF-A2A1-4EB7-ACB8-27E481A2E328}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{00C3EE80-90B4-4903-9529-8D58784703AC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{00C3EE80-90B4-4903-9529-8D58784703AC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{00C3EE80-90B4-4903-9529-8D58784703AC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C54404AF-A2A1-4EB7-ACB8-27E481A2E328}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C54404AF-A2A1-4EB7-ACB8-27E481A2E328}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C54404AF-A2A1-4EB7-ACB8-27E481A2E328}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C54404AF-A2A1-4EB7-ACB8-27E481A2E328}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
