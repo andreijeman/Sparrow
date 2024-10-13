@@ -16,7 +16,7 @@ namespace Server
         private string _serverPassword;
 
         private List<Socket> _clientSockets;
-        private Dictionary<Socket, string> _usernamesDictionary;
+        private Dictionary<Socket, string> _sendersDictionary;
         
         Postman<Packet> _postman;
         private ILogger _logger;
@@ -33,20 +33,20 @@ namespace Server
 
             _serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             _clientSockets = new List<Socket>();
-            _usernamesDictionary = new Dictionary<Socket, string>();
+            _sendersDictionary = new Dictionary<Socket, string>();
 
             _postman = new Postman<Packet>(new Codec(), 1024);
             _semaphore = new SemaphoreSlim(1, 1);
         }
 
-        public async Task StartAsync()
+        public void Start()
         {
                 IPEndPoint endPoint = new IPEndPoint(_serverIp, _serverPort);
 
                 _serverSocket.Bind(endPoint);
                 _serverSocket.Listen(_serverMaxConn);
 
-                await AcceptClientsAsync();
+                _ = Task.Run(async() => await AcceptClientsAsync());
         }
 
         private async Task AcceptClientsAsync()
@@ -79,24 +79,14 @@ namespace Server
         {
             Packet packet = await _postman.ReceivePacketAsync(socket);
 
-            if(packet.Data == _serverPassword && !_usernamesDictionary.ContainsValue(packet.Sender))
+            if(packet.Data == _serverPassword && !_sendersDictionary.ContainsValue(packet.Sender))
             {
                 _ = Task.Run(async () =>
                 {
-                await _semaphore.WaitAsync();
-                try
-                {
-                    _clientSockets.Add(socket);
-                    _usernamesDictionary.Add(socket, packet.Sender);
-                }
-                finally
-                {
-                    _semaphore.Release();
-                }
-
-                _logger.LogInfo($"Socket({SocketUtils.GetIp(socket)}) authenticated.");
-                await _postman.SendPacketAsync(new Packet("Server", PacketType.Data, Status.Ok), socket);
-                await SendBroadcastAsync(new Packet("packet.Sender", PacketType.Connected, ""));
+                    _logger.LogInfo($"Socket({SocketUtils.GetIp(socket)}) authenticated.");
+                    await AddClient(socket, packet.Sender);
+                    await _postman.SendPacketAsync(new Packet("Server", Label.Data, Status.Ok), socket);
+                    await SendBroadcastAsync(new Packet("packet.Sender", Label.Connected, ""));
                 });
             }
             else
@@ -109,52 +99,30 @@ namespace Server
 
         private async Task HandleClientAsync(Socket socket)
         {
-            try
-            {
-                while (socket.Connected)
-                {
-                    Packet packet = await _postman.ReceivePacketAsync(socket);
+            string sender = _sendersDictionary[socket];
 
-                    _ = Task.Run(async () =>
-                    {
-                        await _semaphore.WaitAsync();
-                        try
-                        {
-                            
-                            SendBroadcastAsync(packet);
-                        }
-                        finally
-                        {
-                            _semaphore.Release();
-                        }
-
-                    });
-                }
-            }
-            catch (Exception ex)
+            while (socket.Connected)
             {
-                Console.WriteLine("Exception: " + ex.Message);
-            }
-            finally
-            {
-                await _semaphore.WaitAsync();
                 try
                 {
-                    _clientSockets.Remove(socket);
+                    Packet packet = await _postman.ReceivePacketAsync(socket);
+                    packet = new Packet(sender, Label.Message, packet.Data);
+                    _ = Task.Run(async () => await SendBroadcastAsync(packet));
                 }
-                finally
+                catch (Exception ex)
                 {
-                    _semaphore.Release();
+                    _logger.LogError(ex.Message);
                 }
-
-
-                socket.Shutdown(SocketShutdown.Both);
-                socket.Close();
-
-                _logger.LogInfo($"Socket({SocketUtils.GetIp(socket)}) disconnected.")
-                SendBroadcastAsync(new Packet("Server", PacketType.Disconnected))
 
             }
+            
+            await RemoveClient(socket);
+
+            socket.Shutdown(SocketShutdown.Both);
+            socket.Close();
+
+            _logger.LogInfo($"Socket({SocketUtils.GetIp(socket)}) disconnected.");
+            await SendBroadcastAsync(new Packet(sender, Label.Disconnected, ""));
         }
 
         public async Task SendBroadcastAsync(Packet packet)
@@ -162,7 +130,7 @@ namespace Server
             await _semaphore.WaitAsync();
             try
             {
-                await _postman.SendPacketAsync(new Packet("Server", Command.NewConnection, packet.Sender), _clientSockets);
+                await _postman.SendPacketAsync(new Packet("Server", Label.Message, packet.Sender), _clientSockets);
             }
             finally
             {
@@ -170,27 +138,32 @@ namespace Server
             }
         }
 
+        public async Task AddClient(Socket socket, string sender)
+        {
+            await _semaphore.WaitAsync();
+            try
+            {
+                _clientSockets.Add(socket);
+                _sendersDictionary.Add(socket, sender);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
 
-        //public void Stop()
-        //{
-        //    try
-        //    {
-        //        lock (_clients)
-        //        {
-        //            foreach (ClientData client in _clients)
-        //            {
-        //                client.Socket.Shutdown(SocketShutdown.Both);
-        //                client.Socket.Close();
-        //            }
-        //            _clients.Clear();
-        //        }
-        //        _server.Socket.Shutdown(SocketShutdown.Both);
-        //        _server.Socket.Close();
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Console.WriteLine("Exception: " + ex.Message);
-        //    }
-        //}
+        public async Task RemoveClient(Socket socket)
+        {
+            await _semaphore.WaitAsync();
+            try
+            {
+                _clientSockets.Remove(socket);
+                _sendersDictionary.Remove(socket);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
     }
 }

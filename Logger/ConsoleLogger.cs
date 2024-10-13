@@ -8,24 +8,12 @@ namespace Logger
 {
     public class ConsoleLogger : ILogger
     {
-        public void LogError(string message)
+        public void LogInfo(string message)
         {
-            Console.ForegroundColor = ConsoleColor.Blue;
+            Console.ForegroundColor = ConsoleColor.DarkGray;
             Console.Write($"[{DateTime.Now}] ");
 
             Console.ForegroundColor = ConsoleColor.Green;
-            Console.Write("Info: ");
-
-            Console.ForegroundColor= ConsoleColor.White;
-            Console.WriteLine(message);
-        }
-
-        public void LogInfo(string message)
-        {
-            Console.ForegroundColor = ConsoleColor.Blue;
-            Console.Write($"[{DateTime.Now}] ");
-
-            Console.ForegroundColor = ConsoleColor.Yellow;
             Console.Write("Info: ");
 
             Console.ForegroundColor = ConsoleColor.White;
@@ -34,11 +22,23 @@ namespace Logger
 
         public void LogWarning(string message)
         {
-            Console.ForegroundColor = ConsoleColor.Blue;
+            Console.ForegroundColor = ConsoleColor.DarkGray;
+            Console.Write($"[{DateTime.Now}] ");
+
+            Console.ForegroundColor = ConsoleColor.DarkYellow;
+            Console.Write("Warning: ");
+
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.WriteLine(message);
+        }
+
+        public void LogError(string message)
+        {
+            Console.ForegroundColor = ConsoleColor.DarkGray;
             Console.Write($"[{DateTime.Now}] ");
 
             Console.ForegroundColor = ConsoleColor.Red;
-            Console.Write("Info: ");
+            Console.Write("Error: ");
 
             Console.ForegroundColor = ConsoleColor.White;
             Console.WriteLine(message);

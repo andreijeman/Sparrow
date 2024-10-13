@@ -1,5 +1,5 @@
-﻿using System.Net;
-using System.Net.Sockets;
+﻿using Logger;
+using System.Net;
 
 namespace Server
 {
@@ -7,38 +7,49 @@ namespace Server
     {
         static void Main(string[] args)
         {
-          
-            //string ip = Dns.GetHostEntry(Dns.GetHostName()).AddressList[1].ToString();
-            //Console.WriteLine("Server Ip: " + ip);
 
-            //ReadServerConf(out int port, out int maxClients);
+            var conf = GetServerConf();
+            Server server = new Server(conf.Ip, conf.Port, conf.ServerMaxConn, conf.ServerPassword, conf.Logger);
+            server.Start();
 
-            //Server server = new Server(
-            //    new ServerData(new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp),
-            //                    ip,
-            //                    port,
-            //                    maxClients));
-            
-            //server.Start();
-
-            //Console.WriteLine("Server is running.");
-            //Console.WriteLine("Press Esc to close.");
-            //while (Console.ReadKey().Key != ConsoleKey.Escape);
-
-            //server.Stop();
+            conf.Logger.LogInfo("Press Esc to close server.");
+            while(Console.ReadKey().Key != ConsoleKey.Escape);
         }
 
-        public static void ReadServerConf(out int port, out int maxClients)
+        public static 
+        (IPAddress Ip, int Port, int ServerMaxConn, string ServerPassword, ILogger Logger) 
+        GetServerConf()
         {
-            do 
-            {
-                Console.Write("Enter port: ");
-            }while(!int.TryParse(Console.ReadLine(), out port));
+            IPAddress ip; int port, serverMaxConn; string? serverPassword; ILogger logger; 
 
-            do
+            logger = new ConsoleLogger();
+            ip = Dns.GetHostEntry(Dns.GetHostName()).AddressList[1];
+
+            logger.LogInfo("Server Ip is " + ip.ToString());
+
+            while (true)
             {
-                Console.Write("Enter max number of clients: ");
-            } while (!int.TryParse(Console.ReadLine(), out maxClients));
+                Console.Write("Enter server port: ");
+                if (int.TryParse(Console.ReadLine(), out port) && port < 65536) break;
+                else logger.LogWarning("Invalid port format.");
+            }
+
+            while (true)
+            {
+                Console.Write("Enter server max number of connections: ");
+                if (int.TryParse(Console.ReadLine(), out serverMaxConn)) break;
+                else logger.LogWarning("Invalid number format.");
+            }
+
+            while (true)
+            {
+                Console.Write("Enter server password: ");
+                serverPassword = Console.ReadLine();
+                if (serverPassword != null && serverPassword.Length < 20) break;
+                else logger.LogWarning("Password max length must be 20.");
+            }
+
+            return (ip, port, serverMaxConn, serverPassword, logger);
         }
     }
 }

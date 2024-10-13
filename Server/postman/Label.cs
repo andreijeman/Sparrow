@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Server
+﻿namespace Server
 {
-    public static class PacketType
+    public static class Label
     {
         public const string Data = "Data";
         public const string Connected = "Connected";
