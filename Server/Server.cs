@@ -12,11 +12,11 @@ namespace Server
         private readonly IPAddress _serverIp;
         private readonly int _serverPort;
 
-        private readonly int _serverMaxConn;
+        private int _serverMaxConn;
         private string _serverPassword;
 
         private List<Socket> _clientSockets;
-        private Dictionary<Socket, string> _sendersDictionary;
+        private Dictionary<Socket, string> _sendersDict;
         
         Postman<Packet> _postman;
         private ILogger _logger;
@@ -33,7 +33,7 @@ namespace Server
 
             _serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             _clientSockets = new List<Socket>();
-            _sendersDictionary = new Dictionary<Socket, string>();
+            _sendersDict = new Dictionary<Socket, string>();
 
             _postman = new Postman<Packet>(new Codec(), 1024);
             _semaphore = new SemaphoreSlim(1, 1);
@@ -79,7 +79,7 @@ namespace Server
         {
             Packet packet = await _postman.ReceivePacketAsync(socket);
 
-            if(packet.Data == _serverPassword && !_sendersDictionary.ContainsValue(packet.Sender))
+            if(packet.Data == _serverPassword && !_sendersDict.ContainsValue(packet.Sender))
             {
                 _ = Task.Run(async () =>
                 {
@@ -99,7 +99,7 @@ namespace Server
 
         private async Task HandleClientAsync(Socket socket)
         {
-            string sender = _sendersDictionary[socket];
+            string sender = _sendersDict[socket];
 
             while (socket.Connected)
             {
@@ -144,7 +144,7 @@ namespace Server
             try
             {
                 _clientSockets.Add(socket);
-                _sendersDictionary.Add(socket, sender);
+                _sendersDict.Add(socket, sender);
             }
             finally
             {
@@ -158,7 +158,7 @@ namespace Server
             try
             {
                 _clientSockets.Remove(socket);
-                _sendersDictionary.Remove(socket);
+                _sendersDict.Remove(socket);
             }
             finally
             {

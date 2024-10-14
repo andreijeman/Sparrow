@@ -1,15 +1,15 @@
 ﻿using System.Text;
 
-namespace ConsoleGraphics
+namespace ConsoleUI
 {
-    public static class ImageUtil
+    public static class ImageUtils
     {
         public static Image GetBorderedTextImage(int borderMinWidth, int borderMaxWidth, 
                                                 int borderMinHeight, int borderMaxHeight, 
                                                 char[] borderTemplate, ConsoleColor borderColor, 
                                                 string text, ConsoleColor textColor)
         {
-            var fittedText = GetFittedText(borderMaxWidth, borderMaxHeight, text);
+            var fittedText = GetFittedText(borderMaxWidth - 4, borderMaxHeight, text);
 
             int imageWidth = fittedText.Width + 4 > borderMinWidth ? fittedText.Width + 4 : borderMinWidth;
             int imageHeight = fittedText.Height + 2 > borderMinHeight ? fittedText.Height + 2 : borderMinHeight;
@@ -102,15 +102,19 @@ namespace ConsoleGraphics
         {
             for (int i = 0; i < line.Length; i++)
             {
-                image.SetCell(left + i, top, line[i], color);
+                image.Grid[top, left].Texture = line[i];
+                image.Grid[top, left].Color = color;
+                left++;
             }
         }
 
         public static void PrintVerticalLine(int left, int top, int length, char texture, ConsoleColor color, Image image)
-        {
+        { 
             for (int i = 0; i < length; i++)
             {
-                image.SetCell(left, top + i, texture, color);
+                image.Grid[top, left].Texture = texture;
+                image.Grid[top, left].Color = color;
+                top++;
             }
         }
 
@@ -118,7 +122,9 @@ namespace ConsoleGraphics
         {
             for (int i = 0; i < lenght; i++)
             {
-                image.SetCell(left + i, top, texture, color);
+                image.Grid[top, left].Texture = texture;
+                image.Grid[top, left].Color = color;
+                left++;
             } 
         }
 
@@ -131,6 +137,78 @@ namespace ConsoleGraphics
 
             int hash = text.GetHashCode();
             return (ConsoleColor)(Math.Abs(hash) % 16);
+        }
+
+        public static void InsertImage(int left, int top, Image sourceImage, Image targetImage)
+        {
+            int tLeft, tTop, sLeft, sTop, width, height;
+
+            if(left < 0)
+            {
+                tLeft = 0;
+                sLeft = -left;
+                width = left + sourceImage.Width;
+            }
+            else
+            {
+                tLeft = left;
+                sLeft = 0;
+
+                int temp = targetImage.Width - left;
+                width = left + sourceImage.Width > targetImage.Width ? targetImage.Width - left : sourceImage.Width;
+            }
+
+            if (top < 0)
+            {
+                tTop = 0;
+                sTop = -top;
+                height = top + sourceImage.Height;
+            }
+            else
+            {
+                tTop = top;
+                sTop = 0;
+                height = top + sourceImage.Height > targetImage.Height ? targetImage.Height - top : sourceImage.Height;
+            }
+
+            for(int i = 0; i < height; i++)
+            {
+                for(int j = 0; j < width; j++)
+                {
+                      targetImage.Grid[tTop + i, tLeft + j] = sourceImage.Grid[sTop + i, sLeft + j]; 
+                }
+            }
+        }
+
+        public static void ConsolePrint(int left, int top, Image image)
+        {
+            if (left >= 0 && left + image.Width < Console.BufferWidth &&
+                top >= 0 && top + image.Height < Console.BufferHeight)
+            {
+                ConsoleColor predColor = ConsoleColor.White;
+                for (int i = 0; i < image.Height; i++)
+                {
+                    Console.SetCursorPosition(left, top + i);
+                    for (int j = 0; j < image.Width; j++)
+                    {
+                        if (image.Grid[i, j].Color != predColor)
+                        {
+                            predColor = image.Grid[i, j].Color;
+                            Console.ForegroundColor = predColor;
+                        }
+                        if (image.Grid[i, j].Texture == '\0') Console.SetWindowSize(10, 10);
+                        else Console.Write(image.Grid[i, j].Texture);
+                    }
+                }
+            }
+        }
+
+        public static (int Left, int Top) GetConsoleCenterredPos(int width, int height)
+        {
+            int left = (Console.WindowWidth - width) / 2;
+            int top = (Console.WindowHeight - height) / 2;
+
+            return (left, top);
         }
     }
 }

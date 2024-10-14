@@ -3,26 +3,21 @@ using System.Net;
 
 namespace Server
 {
-    internal class Program
+    public class Program
     {
-        static void Main(string[] args)
+        public static void Main(string[] args)
         {
-
-            var conf = GetServerConf();
-            Server server = new Server(conf.Ip, conf.Port, conf.ServerMaxConn, conf.ServerPassword, conf.Logger);
+            ReadServerConf(out IPAddress ip, out int port, out int serverMaxConn, out string serverPassword);
+            Server server = new Server(ip, port, serverMaxConn, serverPassword, new ConsoleLogger());
             server.Start();
 
-            conf.Logger.LogInfo("Press Esc to close server.");
             while(Console.ReadKey().Key != ConsoleKey.Escape);
         }
 
-        public static 
-        (IPAddress Ip, int Port, int ServerMaxConn, string ServerPassword, ILogger Logger) 
-        GetServerConf()
+        public static void ReadServerConf(out IPAddress ip, out int port, out int serverMaxConn, out string serverPassword)
         {
-            IPAddress ip; int port, serverMaxConn; string? serverPassword; ILogger logger; 
+            var logger = new ConsoleLogger();
 
-            logger = new ConsoleLogger();
             ip = Dns.GetHostEntry(Dns.GetHostName()).AddressList[1];
 
             logger.LogInfo("Server Ip is " + ip.ToString());
@@ -44,12 +39,12 @@ namespace Server
             while (true)
             {
                 Console.Write("Enter server password: ");
-                serverPassword = Console.ReadLine();
-                if (serverPassword != null && serverPassword.Length < 20) break;
+                string? l = Console.ReadLine();
+                if (l != null && l.Length < 20) { serverPassword = l; break; }
                 else logger.LogWarning("Password max length must be 20.");
             }
 
-            return (ip, port, serverMaxConn, serverPassword, logger);
+            logger.LogInfo("Press Esc to close server.");
         }
     }
 }
