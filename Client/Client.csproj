@@ -8,7 +8,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ConsoleGraphics\ConsoleUI.csproj" />
     <ProjectReference Include="..\ConsoleUI\ConsoleUI.csproj" />
     <ProjectReference Include="..\Logger\Logger.csproj" />
     <ProjectReference Include="..\NetworkSocket\NetworkSocket.csproj" />

@@ -4,7 +4,7 @@ using System.Net.Sockets;
 
 namespace NetworkSocket
 {
-    public class SocketUtils
+    public static class SocketUtils
     {
         public static string GetIp(Socket socket)
         {

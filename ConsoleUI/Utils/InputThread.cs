@@ -2,11 +2,11 @@
 {
     public delegate void KeyEventHandler(ConsoleKeyInfo keyInfo);
 
-    public static class ConsoleInput
+    public static class InputThread
     {
         public static event KeyEventHandler? KeyEvent;
 
-        static ConsoleInput()
+        static InputThread()
         {
             Task.Run(() =>
             {

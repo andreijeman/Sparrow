@@ -10,7 +10,7 @@ namespace NetworkSocket
         public Postman(ICodec<T> codec, int bufferSize)
         {
             _codec = codec;
-            _buffer = new byte[1024];
+            _buffer = new byte[bufferSize];
         }
 
         public async Task<T> ReceivePacketAsync(Socket socket)
@@ -24,7 +24,7 @@ namespace NetworkSocket
             await socket.SendAsync(_codec.Pack(data));
         }
 
-        public async Task SendPacketAsync(T data, List<Socket> sockets)
+        public async Task SendPacketsAsync(T data, List<Socket> sockets)
         {
             List<Task> tasks = new List<Task>();
 

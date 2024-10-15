@@ -1,6 +1,5 @@
 ﻿using ConsoleUI;
 using Logger;
-using System;
 using System.Net;
 
 namespace Client
@@ -12,17 +11,23 @@ namespace Client
         public static void Main(string[] args)
         {
 
-            Client client = new Client(new ConsoleLogger());
+            Button b = new Button(MyAction);
+            b.Active = true;
+            b.Left = 10;
+            b.Top = 10;
+            b.Width = 20;
+            b.Height = 5;
+            b.Color = ConsoleColor.Green;
+            b.Render();
 
-            LoginPage page = new LoginPage();
+            while (true);
 
-            page.Render();
-            //Console.BackgroundColor = ConsoleColor.Green;
-            //Image img = ImageUtils.GetBorderedTextImage(1, 10, 1, 10, Config.Chat.BorderTemplate, ConsoleColor.Magenta, "", ConsoleColor.White);
-            //ImageUtils.ConsolePrint(0, 0, img);
+        }
 
-            while (true) page.DrawCursor();
-
+        public static void MyAction()
+        {
+            Console.SetCursorPosition(0, 0);
+            Console.WriteLine("Button pressed!");
         }
 
         public static void ReadConnConf(out IPAddress ip, out int port, out string serverPassword, out int serverMaxConn)

@@ -12,9 +12,9 @@ namespace Client.Pages
             _inputs = new List<BaseInput>();
 
             //Chats
-            _inputs.Add(new ControllInput());
+            _inputs.Add(new ControllerInput());
             //Settings
-            _inputs.Add(new ControllInput());
+            _inputs.Add(new ControllerInput());
 
             _inputIndex = 0;
             _inputs[_inputIndex].Active = true;

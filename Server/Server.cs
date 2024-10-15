@@ -130,7 +130,7 @@ namespace Server
             await _semaphore.WaitAsync();
             try
             {
-                await _postman.SendPacketAsync(new Packet("Server", Label.Message, packet.Sender), _clientSockets);
+                await _postman.SendPacketsAsync(new Packet("Server", Label.Message, packet.Sender), _clientSockets);
             }
             finally
             {
