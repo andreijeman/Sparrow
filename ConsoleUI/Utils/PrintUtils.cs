@@ -4,11 +4,11 @@ namespace ConsoleUI
 {
     public static class PrintUtils
     {
-        public static void PrintText(int left, int top, int maxWidth, int maxHeight, List<string> lines)
+        public static void PrintText(int left, int top, List<string> lines)
         {
             for (int i = 0; i < lines.Count; i++)
             {
-                PrintString(left, top + 1, lines[i]);
+                PrintString(left, top + i, lines[i]);
             }
         }
 

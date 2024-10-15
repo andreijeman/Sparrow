@@ -2,7 +2,8 @@
 {
     public abstract class Activatable
     {
-        protected bool _active = false;
-        public virtual bool Active { get; set; }
+        protected bool _active;
+        public abstract bool Active { get; set; }
+
     }
 }

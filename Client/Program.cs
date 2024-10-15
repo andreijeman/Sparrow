@@ -11,23 +11,40 @@ namespace Client
         public static void Main(string[] args)
         {
 
-            Button b = new Button(MyAction);
-            b.Active = true;
-            b.Left = 10;
-            b.Top = 10;
-            b.Width = 20;
-            b.Height = 5;
-            b.Color = ConsoleColor.Green;
+            TextBox a = new TextBox(10, 10, 20, 5);
+            a.BorderTemplate = Config.Chat.BorderTemplate;
+            a.BorderColor = ConsoleColor.Magenta;
+            a.TextColor = ConsoleColor.White;
+            a.Render();
+
+            TextBox b = new TextBox(31, 10, 20, 5);
+            b.BorderTemplate = Config.Chat.BorderTemplate;
+            b.BorderColor = ConsoleColor.Magenta;
+            b.TextColor = ConsoleColor.White;
             b.Render();
 
-            while (true);
+            TextBox c = new TextBox(10, 15, 20, 5);
+            c.BorderTemplate = Config.Chat.BorderTemplate;
+            c.BorderColor = ConsoleColor.Magenta;
+            c.TextColor = ConsoleColor.White;
+            c.Render();
+
+            Table t = new Table(2, 2);
+            t.AddElement(0, 0, a);
+            t.AddElement(0, 1, b);
+            t.AddElement(1, 0, c);
+
+            t.Active = true;
+
+
+            while (true) ;
+           
 
         }
 
         public static void MyAction()
         {
-            Console.SetCursorPosition(0, 0);
-            Console.WriteLine("Button pressed!");
+            Console.Beep();
         }
 
         public static void ReadConnConf(out IPAddress ip, out int port, out string serverPassword, out int serverMaxConn)
