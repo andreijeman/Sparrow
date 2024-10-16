@@ -3,19 +3,16 @@
     public class Button : Element
     {
         private int _textLeft, _textTop;
-        private List<string>? _text;
+        private List<string> _text;
 
-        public string? Text 
+        public string Text 
         {
             set
             {
-                if (value != null)
-                {
-                    _text = TextUtils.GetFittedText(Width - 4, Height - 2, value);
-                    _textLeft = Left + 2;
-                    _textTop = Top + (Height - _text.Count) / 2;
-                }
-                else _text = null;
+                _text = TextUtils.GetFittedText(Width - 4, Height - 2, value);
+                _textLeft = Left + 2;
+                _textTop = Top + (Height - _text.Count) / 2;
+
             }
         }
 
@@ -26,10 +23,11 @@
             {
                 if (value != _active)
                 {
-                    _controller.Active = value;
                     _active = value;
-                    if (value) _currentColor = HoveredColor;
-                    else _currentColor = IdleColor;
+                    _controller.Active = value;
+                    if (value) RenderHoverred();
+                    else Render();
+
                 }
             }
         }
@@ -45,29 +43,47 @@
 
         public Button(int left, int top, int width, int height) : base(left, top, width, height) 
         {
-            _controller.AddKeyEvent(ConsoleKey.Enter, EnterKeyEvent);
+            IdleColor = ConsoleColor.Magenta;
+            HoveredColor = ConsoleColor.Blue;
+            PressedColor = ConsoleColor.DarkYellow;
+            TextColor = ConsoleColor.White;
+
+            Text = "Button";
+
+            _controller.AddKeyEvent(ConsoleKey.Enter, ProcessEnterKey);
+            _controller.AddKeyEvent(ConsoleKey.Spacebar, ProcessEnterKey);
         }
 
         public override void Render()
         {
-            Console.BackgroundColor = _currentColor;
-            PrintUtils.PrintRect(Left, Top, Width, Height, ' ');
+            PrintUtils.PrintRect(Left, Top, Width, Height, ' ', IdleColor, IdleColor);
 
-            if (_text != null)
-            {
-                Console.ForegroundColor = TextColor;
-                PrintUtils.PrintText(_textLeft, _textTop, _text);
-            }
+            PrintUtils.PrintText(_textLeft, _textTop, _text, TextColor, IdleColor);
         }
 
-        public void EnterKeyEvent()
+        public void RenderHoverred()
         {
-            _currentColor = PressedColor;
-            Render();
-            Task.Delay(100).ContinueWith(t =>
+            PrintUtils.PrintRect(Left, Top, Width, Height, ' ', HoveredColor, HoveredColor);
+
+            PrintUtils.PrintText(_textLeft, _textTop, _text, TextColor, HoveredColor);
+        }
+
+        public void RenderPressed()
+        {
+            PrintUtils.PrintRect(Left, Top, Width, Height, ' ', PressedColor, PressedColor);
+
+            PrintUtils.PrintText(_textLeft, _textTop, _text, TextColor, PressedColor);
+        }
+
+        public void ProcessEnterKey()
+        {
+            RenderPressed();
+
+            Task.Delay(124).ContinueWith(t =>
             {
-                _currentColor = HoveredColor;
-                Render();
+                if(_active) RenderHoverred();
+                else Render();
+
                 Action?.Invoke();
             });
         }

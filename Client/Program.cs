@@ -1,5 +1,6 @@
 ﻿using ConsoleUI;
 using Logger;
+using System.Data;
 using System.Net;
 
 namespace Client
@@ -11,28 +12,25 @@ namespace Client
         public static void Main(string[] args)
         {
 
-            TextBox a = new TextBox(10, 10, 20, 5);
-            a.BorderTemplate = Config.Chat.BorderTemplate;
-            a.BorderColor = ConsoleColor.Magenta;
-            a.TextColor = ConsoleColor.White;
-            a.Render();
+            int r = 5;
+            int c = 10;
 
-            TextBox b = new TextBox(31, 10, 20, 5);
-            b.BorderTemplate = Config.Chat.BorderTemplate;
-            b.BorderColor = ConsoleColor.Magenta;
-            b.TextColor = ConsoleColor.White;
-            b.Render();
+            int s = 5;
 
-            TextBox c = new TextBox(10, 15, 20, 5);
-            c.BorderTemplate = Config.Chat.BorderTemplate;
-            c.BorderColor = ConsoleColor.Magenta;
-            c.TextColor = ConsoleColor.White;
-            c.Render();
+            Table t = new Table(r, c);
 
-            Table t = new Table(2, 2);
-            t.AddElement(0, 0, a);
-            t.AddElement(0, 1, b);
-            t.AddElement(1, 0, c);
+
+            for (int i = 0; i < r; i++)
+            {
+                for(int j = 0; j < c; j++)
+                {
+                    Element el;
+                    if((i + j) % 2 == 0) el = new Button(s * 2 * j + 2 * j, s * i + i, s * 2, s);
+                    else el = new TextBox(s * 2 * j + 2 * j, s * i + i, s * 2, s);
+                    el.Render();
+                    t.AddElement(i, j, el);
+                }
+            }
 
             t.Active = true;
 

@@ -28,17 +28,17 @@ namespace ConsoleUI
             if (_keyEventsDict.ContainsKey(keyInfo.Key)) _keyEventsDict[keyInfo.Key]?.Invoke();
         }
 
-        public void AddKeyEvent(ConsoleKey key, ActionEventHandler keyEvent)
+        public void AddKeyEvent(ConsoleKey key, ActionEventHandler action)
         {
-            if (_keyEventsDict.ContainsKey(key)) _keyEventsDict[key] += keyEvent;
-            else _keyEventsDict.Add(key, keyEvent);
+            if (_keyEventsDict.ContainsKey(key)) _keyEventsDict[key] += action;
+            else _keyEventsDict.Add(key, action);
         }
 
-        public void RemoveKeyEvent(ConsoleKey key, ActionEventHandler keyEvent)
+        public void RemoveKeyEvent(ConsoleKey key, ActionEventHandler action)
         {
             if (_keyEventsDict.ContainsKey(key))
             {
-                _keyEventsDict[key] -= keyEvent;
+                _keyEventsDict[key] -= action;
                 if (_keyEventsDict[key] != null) _keyEventsDict.Remove(key);
             }
         }
