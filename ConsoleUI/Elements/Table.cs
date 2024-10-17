@@ -96,7 +96,7 @@ namespace ConsoleUI.Elements
                 _currentRow = row;
                 _currentColumn = column;
 
-                if(Width < element.Left + element.Width + element.Width) Width = element.Left + element.Width + 4;  
+                if(Width < element.Left + element.Width) Width = element.Left + element.Width + 4;  
                 if(Height < element.Top + element.Height) Height = element.Top + element.Height + 2;
             }
         }
