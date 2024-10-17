@@ -1,4 +1,5 @@
-﻿using ConsoleUI.Elements;
+﻿using Client.Pages;
+using ConsoleUI.Elements;
 using Logger;
 using System.Net;
 
@@ -10,7 +11,10 @@ namespace Client
         
         public static void Main(string[] args)
         {
-            Test1(); 
+            //Test1(); 
+            Console.Clear();
+            ConnectPage page = new ConnectPage();
+            page.Show();
             Thread.Sleep(100000);
         }
 
@@ -56,7 +60,7 @@ namespace Client
         public static void Test1()
         {
             int r = 3, c = 2, s = 4;
-            Table childTable = new Table(0, 0, r, c, ConsoleKey.LeftArrow, ConsoleKey.RightArrow, ConsoleKey.UpArrow, ConsoleKey.DownArrow);
+            Table childTable = new Table(0, 0, r, c, 2, 1, ConsoleKey.LeftArrow, ConsoleKey.RightArrow, ConsoleKey.UpArrow, ConsoleKey.DownArrow);
 
             for (int i = 0; i < r; i++)
             {
@@ -70,7 +74,7 @@ namespace Client
             }
 
 
-            Table parentTable = new Table(0, 0, 1, 2, ConsoleKey.Tab, null, null, null);
+            Table parentTable = new Table(0, 0, 1, 2, 2, 1, ConsoleKey.Tab, null, null, null);
             TextBox textBox = new TextBox(24, 0, 20, 16);
 
 

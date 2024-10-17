@@ -33,7 +33,7 @@ namespace ConsoleUI.Utils
             return lines;
         }
 
-        public static ConsoleColor GetColorFromText(string text)
+        public static ConsoleColor GetColorFromString(string text)
         {
             if (string.IsNullOrEmpty(text))
             {

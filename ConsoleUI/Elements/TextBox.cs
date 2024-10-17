@@ -26,31 +26,28 @@ namespace ConsoleUI.Elements
             get => _active;
             set
             {
-                if (value != _active)
+                _controller.Active = value;
+                _active = value;
+                if (value)
                 {
-                    _controller.Active = value;
-                    _active = value;
-                    if (value)
-                    {
-                        KeyInput.KeyEvent += ProcessKey;
+                    KeyInput.KeyEvent += ProcessKey;
 
-                        Task.Run(async () =>
+                    Task.Run(async () =>
+                    {
+                        while (_active)
                         {
-                            while (_active)
-                            {
-                                PrintUtils.PrintChar(OriginLeft + _cursorLeft, OriginTop + _cursorTop, Cursor, TextColor, BackgroundColor);
-                                await Task.Delay(400);
-                                PrintUtils.PrintChar(OriginLeft + _cursorLeft, OriginTop + _cursorTop, ' ', TextColor, BackgroundColor);
-                                await Task.Delay(400);
-                            }
+                            PrintUtils.PrintChar(OriginLeft + _cursorLeft, OriginTop + _cursorTop, Cursor, TextColor, BackgroundColor);
+                            await Task.Delay(400);
+                            PrintUtils.PrintChar(OriginLeft + _cursorLeft, OriginTop + _cursorTop, ' ', TextColor, BackgroundColor);
+                            await Task.Delay(400);
+                        }
 
-                        });
-                    }
-                    else
-                    {
-                        PrintUtils.PrintChar(OriginLeft + _cursorLeft, OriginTop + _cursorTop, ' ', TextColor, BackgroundColor);
-                        KeyInput.KeyEvent -= ProcessKey;
-                    }
+                    });
+                }
+                else
+                {
+                    PrintUtils.PrintChar(OriginLeft + _cursorLeft, OriginTop + _cursorTop, ' ', TextColor, BackgroundColor);
+                    KeyInput.KeyEvent -= ProcessKey;
                 }
             }
         }

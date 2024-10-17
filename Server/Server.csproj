@@ -10,7 +10,6 @@
   <ItemGroup>
     <ProjectReference Include="..\Logger\Logger.csproj" />
     <ProjectReference Include="..\NetworkSocket\NetworkSocket.csproj" />
-    <ProjectReference Include="..\Network\NetworkSocket.csproj" />
   </ItemGroup>
 
 </Project>

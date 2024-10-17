@@ -26,14 +26,10 @@ namespace ConsoleUI.Elements
             get => _active;
             set
             {
-                if (value != _active)
-                {
-                    _active = value;
-                    _controller.Active = value;
-                    if (value) { DrawHoverred(); _watch.Start(); }
-                    else { Draw(); _watch.Stop(); }
-
-                }
+                _active = value;
+                _controller.Active = value;
+                if (value) { DrawHoverred(); _watch.Start(); }
+                else { Draw(); _watch.Stop(); }
             }
         }
 
@@ -50,10 +46,9 @@ namespace ConsoleUI.Elements
             IdleColor = ConsoleColor.Magenta;
             HoveredColor = ConsoleColor.Blue;
             PressedColor = ConsoleColor.DarkBlue;
-            TextColor = ConsoleColor.White;
+            TextColor = ConsoleColor.Gray;
 
-            _text = new List<string>();
-            Text = "Button";
+            _text = new List<string>() { "Button" };
 
             _controller.AddKeyEvent(ConsoleKey.Enter, ProcessEnterKey);
             _controller.AddKeyEvent(ConsoleKey.Spacebar, ProcessEnterKey);

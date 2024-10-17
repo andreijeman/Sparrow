@@ -20,12 +20,9 @@ namespace ConsoleUI.Elements
             get => _active;
             set
             {
-                if(_active != value)
-                {
-                    _active = value;
-                    _controller.Active = value; 
-                    _grid[_currentRow, _currentColumn].Active = value;
-                }
+                _active = value;
+                _controller.Active = value; 
+                _grid[_currentRow, _currentColumn].Active = value;
             }
         }
 
@@ -42,7 +39,7 @@ namespace ConsoleUI.Elements
                     {
                         if (_grid[i, j] != null)
                         {
-                            _grid[i, j].OriginLeft = _originLeft + Left + 2;
+                            _grid[i, j].OriginLeft = _originLeft + Left + MarginLeft;
                         }
                     }
                 }
@@ -62,18 +59,24 @@ namespace ConsoleUI.Elements
                     {
                         if (_grid[i, j] != null)
                         {
-                            _grid[i, j].OriginTop = _originTop + Top + 1;
+                            _grid[i, j].OriginTop = _originTop + Top + MarginTop;
                         }
                     }
                 }
             }
         }
 
-        public Table(int left,int top, int rows, int columns, ConsoleKey? leftkey, ConsoleKey? rightKey, ConsoleKey? upKey, ConsoleKey? downKey) : base(left, top, 0, 0)
+        public int MarginLeft { get; init; }
+        public int MarginTop { get; init; }
+
+        public Table(int left,int top, int rows, int columns, int marginLeft, int maringTop, ConsoleKey? leftkey, ConsoleKey? rightKey, ConsoleKey? upKey, ConsoleKey? downKey) : base(left, top, 0, 0)
         {
             Rows = rows;
             Columns = columns;
             _grid = new BaseElement[rows, columns];
+
+            MarginLeft = marginLeft;
+            MarginTop = maringTop;
 
             if(leftkey != null) _controller.AddKeyEvent((ConsoleKey)leftkey, ProcessLeftKey);
             if (rightKey != null) _controller.AddKeyEvent((ConsoleKey)rightKey, ProcessRightKey);
@@ -89,15 +92,15 @@ namespace ConsoleUI.Elements
         {
             if(row >= 0 && row < Rows && column >= 0 && column < Columns)
             {
-                element.OriginLeft = OriginLeft + Left + 2;
-                element.OriginTop = OriginTop + Top + 1;
+                element.OriginLeft = OriginLeft + Left + MarginLeft;
+                element.OriginTop = OriginTop + Top + MarginTop;
 
                 _grid[row, column] = element;
-                _currentRow = row;
-                _currentColumn = column;
+                //_currentRow = row;
+                //_currentColumn = column;
 
-                if(Width < element.Left + element.Width) Width = element.Left + element.Width + 4;  
-                if(Height < element.Top + element.Height) Height = element.Top + element.Height + 2;
+                if(Width < element.Left + element.Width + 2 * MarginLeft) Width = element.Left + element.Width + 2 * MarginLeft;  
+                if(Height < element.Top + element.Height + 2 * MarginTop) Height = element.Top + element.Height + 2 * MarginTop;
             }
         }
 
