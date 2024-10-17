@@ -1,6 +1,4 @@
-﻿using System.Text;
-
-namespace ConsoleUI
+﻿namespace ConsoleUI.Utils
 {
     public static class PrintUtils
     {

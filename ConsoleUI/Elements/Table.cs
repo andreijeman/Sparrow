@@ -1,19 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using ConsoleUI.Utils;
 
-namespace ConsoleUI
+namespace ConsoleUI.Elements
 {
-    public class Table : Interactive
+    public class Table : BaseElement
     {
         public int Rows { get; init; }
         public int Columns { get; init; }
 
-        private Element[,] _grid;
+        private BaseElement[,] _grid;
 
         private int _currentRow, _currentColumn;
+
+        public ConsoleColor BackgroundColor {  get; set; }
+        public ConsoleColor BorderColor {  get; set; }
+        public Char[] BorderTemplate {  get; set; }
 
         public override bool Active
         {
@@ -29,87 +29,162 @@ namespace ConsoleUI
             }
         }
 
+        private int _originLeft;
+        public override int OriginLeft 
+        { 
+            get => _originLeft; 
+            set
+            {
+                _originLeft = value;
+                for (int i = 0; i < Rows; i++)
+                {
+                    for (int j = 0; j < Columns; j++)
+                    {
+                        if (_grid[i, j] != null)
+                        {
+                            _grid[i, j].OriginLeft = _originLeft + Left + 2;
+                        }
+                    }
+                }
+            }
+        }
 
-        public Table(int rows, int columns)
+        private int _originTop;
+        public override int OriginTop
+        {
+            get => _originTop;
+            set
+            {
+                _originTop = value;
+                for (int i = 0; i < Rows; i++)
+                {
+                    for (int j = 0; j < Columns; j++)
+                    {
+                        if (_grid[i, j] != null)
+                        {
+                            _grid[i, j].OriginTop = _originTop + Top + 1;
+                        }
+                    }
+                }
+            }
+        }
+
+        public Table(int left,int top, int rows, int columns, ConsoleKey? leftkey, ConsoleKey? rightKey, ConsoleKey? upKey, ConsoleKey? downKey) : base(left, top, 0, 0)
         {
             Rows = rows;
             Columns = columns;
-            _grid = new Element[rows, columns];
+            _grid = new BaseElement[rows, columns];
 
-            _controller.AddKeyEvent(ConsoleKey.LeftArrow, ProcessLeftArrow);
-            _controller.AddKeyEvent(ConsoleKey.RightArrow, ProcessRightArrow);
-            _controller.AddKeyEvent(ConsoleKey.UpArrow, ProcessUpArrow);
-            _controller.AddKeyEvent(ConsoleKey.DownArrow, ProcessDownArrow);
+            if(leftkey != null) _controller.AddKeyEvent((ConsoleKey)leftkey, ProcessLeftKey);
+            if (rightKey != null) _controller.AddKeyEvent((ConsoleKey)rightKey, ProcessRightKey);
+            if (upKey != null) _controller.AddKeyEvent((ConsoleKey)upKey, ProcessUpKey);
+            if (downKey != null) _controller.AddKeyEvent((ConsoleKey) downKey, ProcessDownKey);
+
+            BorderColor = ConsoleColor.DarkMagenta;
+            BorderTemplate = Assets.Border2;
+            BackgroundColor = ConsoleColor.Black;
         }
 
-        public void AddElement(int row, int column, Element element)
+        public void AddElement(int row, int column, BaseElement element)
         {
             if(row >= 0 && row < Rows && column >= 0 && column < Columns)
             {
+                element.OriginLeft = OriginLeft + Left + 2;
+                element.OriginTop = OriginTop + Top + 1;
+
                 _grid[row, column] = element;
                 _currentRow = row;
                 _currentColumn = column;
 
+                if(Width < element.Left + element.Width + element.Width) Width = element.Left + element.Width + 4;  
+                if(Height < element.Top + element.Height) Height = element.Top + element.Height + 2;
             }
         }
 
-        public void ProcessRightArrow()
+        public void ProcessRightKey()
         {
-            for(int i = _currentColumn + 1; i < Columns; i++)
+            int temp = _currentColumn;
+
+            for(int i = _currentColumn + 1; i < Columns; i++) if (_grid[_currentRow, i] != null) { _currentColumn = i; break; }
+            
+            if(_currentColumn == temp)
             {
-                if (_grid[_currentRow, i] != null)
+                for (int i = 0; i < _currentColumn; i++) if (_grid[_currentRow, i] != null) { _currentColumn = i; break; }      
+            }
+
+            if (temp != _currentColumn)
+            {
+                _grid[_currentRow, temp].Active = false;
+                _grid[_currentRow, _currentColumn].Active = true;                
+            }
+        }
+
+        public void ProcessLeftKey()
+        {
+            int temp = _currentColumn;
+
+            for (int i = _currentColumn - 1; i >= 0; i--) if (_grid[_currentRow, i] != null) { _currentColumn = i; break; }
+            
+            if (_currentColumn == temp)
+            {
+                for (int i = Columns - 1; i > _currentColumn; i--) if (_grid[_currentRow, i] != null) { _currentColumn = i; break; }
+            }
+
+            if (temp != _currentColumn)
+            {
+                _grid[_currentRow, temp].Active = false;
+                _grid[_currentRow, _currentColumn].Active = true;
+            }
+        }
+
+        public void ProcessUpKey()
+        {
+            int temp = _currentRow;
+
+            for (int i = _currentRow - 1; i >= 0; i--) if (_grid[i, _currentColumn] != null) { _currentRow = i; break; }
+
+            if (_currentRow == temp)
+            {
+                for (int i = Rows - 1; i > _currentRow; i--) if (_grid[i, _currentColumn] != null) { _currentRow = i; break; }
+            }
+
+            if (temp != _currentRow)
+            {
+                _grid[temp, _currentColumn].Active = false;
+                _grid[_currentRow, _currentColumn].Active = true;
+            }
+        }
+
+        public void ProcessDownKey()
+        {
+            int temp = _currentRow;
+
+            for (int i = _currentRow + 1; i < Rows; i++) if (_grid[i, _currentColumn] != null) { _currentRow = i; break; }
+
+            if (_currentRow == temp)
+            {
+                for (int i = 0; i < _currentRow; i++) if (_grid[i, _currentColumn] != null) { _currentRow = i; break; }
+            }
+
+            if (temp != _currentRow)
+            {
+                _grid[temp, _currentColumn].Active = false;
+                _grid[_currentRow, _currentColumn].Active = true;
+            }
+        }
+
+        public override void Draw()
+        {
+            PrintUtils.PrintRect(OriginLeft + Left, OriginTop + Top, Width, Height, ' ', BackgroundColor, BackgroundColor);
+            PrintUtils.PrintBorder(OriginLeft + Left, OriginTop + Top, Width, Height, BorderTemplate, BorderColor, BackgroundColor);
+
+            for(int i = 0; i < Rows; i++)
+            {
+                for(int j = 0; j < Columns; j++)
                 {
-                    _grid[_currentRow, _currentColumn].Active = false;
-                    _currentColumn = i;
-                    _grid[_currentRow, _currentColumn].Active = true;
-                    break;
+                    if(_grid[i, j] != null) _grid[i, j].Draw();
                 }
             }
         }
-
-        public void ProcessLeftArrow()
-        {
-            for (int i = _currentColumn - 1; i >= 0; i--)
-            {
-                if (_grid[_currentRow, i] != null)
-                {
-                    _grid[_currentRow, _currentColumn].Active = false;
-                    _currentColumn = i;
-                    _grid[_currentRow, _currentColumn].Active = true;
-                    break;
-                }
-            }
-
-        }
-
-        public void ProcessUpArrow()
-        {
-            for (int i = _currentRow - 1; i >= 0; i--)
-            {
-                if (_grid[i, _currentColumn] != null)
-                {
-                    _grid[_currentRow, _currentColumn].Active = false;
-                    _currentRow = i;
-                    _grid[_currentRow, _currentColumn].Active = true;
-                    break;
-                }
-            }
-
-        }
-
-        public void ProcessDownArrow()
-        {
-            for (int i = _currentRow + 1; i < Rows; i++)
-            {
-                if (_grid[i, _currentColumn] != null)
-                {
-                    _grid[_currentRow, _currentColumn].Active = false;
-                    _currentRow = i;
-                    _grid[_currentRow, _currentColumn].Active = true;
-                    break;
-                }
-            }
-        }
-
     }
 }

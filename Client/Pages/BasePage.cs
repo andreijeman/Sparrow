@@ -1,16 +1,22 @@
-﻿using ConsoleUI;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-namespace Client
+﻿using ConsoleUI.Interfaces;
+
+namespace Client.Pages
 {
-    public delegate void RedirectPageEventHandler(BasePage page);
-
-    public abstract class BasePage
+    public abstract class BasePage : IActivatable, IDrawable
     {
-        public event RedirectPageEventHandler? RedirectPage;
+        public int OriginLeft { get; init; }
+        public int OriginTop { get; init; }
 
-        public abstract void Render();
+        protected bool _active;
+        public abstract bool Active { get; set; }
+        public abstract void Draw();
+
+        public BasePage(int originLeft, int originTop)
+        {
+            OriginLeft = originLeft;
+            OriginTop = originTop;
+        }
+
+
     }
 }

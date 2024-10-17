@@ -1,9 +1,14 @@
-﻿namespace ConsoleUI
+﻿using System.Diagnostics;
+using ConsoleUI.Inputs;
+using ConsoleUI.Utils;
+
+namespace ConsoleUI.Elements
 {
-    public class Button : Element
+    public class Button : BaseElement
     {
         private int _textLeft, _textTop;
         private List<string> _text;
+        private Stopwatch _watch;
 
         public string Text 
         {
@@ -25,14 +30,13 @@
                 {
                     _active = value;
                     _controller.Active = value;
-                    if (value) RenderHoverred();
-                    else Render();
+                    if (value) { DrawHoverred(); _watch.Start(); }
+                    else { Draw(); _watch.Stop(); }
 
                 }
             }
         }
 
-        private ConsoleColor _currentColor;
         public ConsoleColor IdleColor { get; set; }
         public ConsoleColor HoveredColor { get; set; }
         public ConsoleColor PressedColor { get; set; }
@@ -45,47 +49,58 @@
         {
             IdleColor = ConsoleColor.Magenta;
             HoveredColor = ConsoleColor.Blue;
-            PressedColor = ConsoleColor.DarkYellow;
+            PressedColor = ConsoleColor.DarkBlue;
             TextColor = ConsoleColor.White;
 
+            _text = new List<string>();
             Text = "Button";
 
             _controller.AddKeyEvent(ConsoleKey.Enter, ProcessEnterKey);
             _controller.AddKeyEvent(ConsoleKey.Spacebar, ProcessEnterKey);
+
+            _watch = new Stopwatch(); 
         }
 
-        public override void Render()
+        public override void Draw()
         {
-            PrintUtils.PrintRect(Left, Top, Width, Height, ' ', IdleColor, IdleColor);
+            PrintUtils.PrintRect(OriginLeft + Left, OriginTop + Top, Width, Height, ' ', IdleColor, IdleColor);
 
-            PrintUtils.PrintText(_textLeft, _textTop, _text, TextColor, IdleColor);
+            PrintUtils.PrintText(OriginLeft + _textLeft, OriginTop + _textTop, _text, TextColor, IdleColor);
         }
 
-        public void RenderHoverred()
+        public void DrawHoverred()
         {
-            PrintUtils.PrintRect(Left, Top, Width, Height, ' ', HoveredColor, HoveredColor);
+            PrintUtils.PrintRect(OriginLeft + Left, OriginTop + Top, Width, Height, ' ', HoveredColor, HoveredColor);
 
-            PrintUtils.PrintText(_textLeft, _textTop, _text, TextColor, HoveredColor);
+            PrintUtils.PrintText(OriginLeft + _textLeft, OriginTop + _textTop, _text, TextColor, HoveredColor);
         }
 
-        public void RenderPressed()
+        public void DrawPressed()
         {
-            PrintUtils.PrintRect(Left, Top, Width, Height, ' ', PressedColor, PressedColor);
+            PrintUtils.PrintRect(OriginLeft + Left, OriginTop + Top, Width, Height, ' ', PressedColor, PressedColor);
 
-            PrintUtils.PrintText(_textLeft, _textTop, _text, TextColor, PressedColor);
+            PrintUtils.PrintText(OriginLeft + _textLeft, OriginTop + _textTop, _text, TextColor, PressedColor);
         }
 
         public void ProcessEnterKey()
         {
-            RenderPressed();
-
-            Task.Delay(124).ContinueWith(t =>
+            _watch.Stop();
+            if(_watch.Elapsed.TotalMilliseconds > 200)
             {
-                if(_active) RenderHoverred();
-                else Render();
 
-                Action?.Invoke();
-            });
+                DrawPressed();
+
+                Task.Delay(124).ContinueWith(t =>
+                {
+                    if(_active) DrawHoverred();
+                    else Draw();
+
+                    Action?.Invoke();
+                });
+
+                _watch.Restart();
+            }
+            _watch.Start();
         }
     }
 }

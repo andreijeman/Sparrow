@@ -1,20 +1,19 @@
-﻿namespace ConsoleUI
+﻿namespace ConsoleUI.Inputs;
+
+public delegate void KeyEventHandler(ConsoleKeyInfo keyInfo);
+
+public static class KeyInput
 {
-    public delegate void KeyEventHandler(ConsoleKeyInfo keyInfo);
+    public static event KeyEventHandler? KeyEvent;
 
-    public static class KeyInput
+    static KeyInput()
     {
-        public static event KeyEventHandler? KeyEvent;
-
-        static KeyInput()
+        Task.Run(() =>
         {
-            Task.Run(() =>
+            while (true)
             {
-                while (true)
-                {
-                    KeyEvent?.Invoke(Console.ReadKey(true));
-                }
-            });
-        }
+                KeyEvent?.Invoke(Console.ReadKey(true));
+            }
+        });
     }
 }

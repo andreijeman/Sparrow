@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using ConsoleUI.Utils;
+using ConsoleUI.Inputs;
+using System.Diagnostics;
 
-namespace ConsoleUI
+namespace ConsoleUI.Elements
 {
-    public class TextBox : Element
+    public class TextBox : BaseElement
     {
         private char[] _buffer;
         private int _bufferSize;
@@ -14,6 +12,8 @@ namespace ConsoleUI
         private int _bufferWidth, _bufferHeight;
         private int _index;
         private int _cursorLeft, _cursorTop;
+
+        private Stopwatch _watch;
 
         public char Cursor { get; set; } 
         public char[]? BorderTemplate { get; set; }
@@ -32,16 +32,15 @@ namespace ConsoleUI
                     _active = value;
                     if (value)
                     {
-                        PrintUtils.PrintChar(_cursorLeft, _cursorTop, Cursor, TextColor, BackgroundColor);
                         KeyInput.KeyEvent += ProcessKey;
 
                         Task.Run(async () =>
                         {
                             while (_active)
                             {
-                                PrintUtils.PrintChar(_cursorLeft, _cursorTop, Cursor, TextColor, BackgroundColor);
+                                PrintUtils.PrintChar(OriginLeft + _cursorLeft, OriginTop + _cursorTop, Cursor, TextColor, BackgroundColor);
                                 await Task.Delay(400);
-                                PrintUtils.PrintChar(_cursorLeft, _cursorTop, ' ', TextColor, BackgroundColor);
+                                PrintUtils.PrintChar(OriginLeft + _cursorLeft, OriginTop + _cursorTop, ' ', TextColor, BackgroundColor);
                                 await Task.Delay(400);
                             }
 
@@ -49,7 +48,7 @@ namespace ConsoleUI
                     }
                     else
                     {
-                        PrintUtils.PrintChar(_cursorLeft, _cursorTop, ' ', TextColor, BackgroundColor);
+                        PrintUtils.PrintChar(OriginLeft + _cursorLeft, OriginTop + _cursorTop, ' ', TextColor, BackgroundColor);
                         KeyInput.KeyEvent -= ProcessKey;
                     }
                 }
@@ -69,6 +68,7 @@ namespace ConsoleUI
             _bufferTop = top + 1;
             _cursorLeft = _bufferLeft;
             _cursorTop = _bufferTop;
+            
             Cursor = Assets.Cursor;
             TextColor = ConsoleColor.White;
             BackgroundColor = ConsoleColor.Black;
@@ -78,25 +78,35 @@ namespace ConsoleUI
 
             _controller.AddKeyEvent(ConsoleKey.Enter, EnterKeyEvent);
             _controller.AddKeyEvent(ConsoleKey.Backspace, BackspaceKeyEvent);
+
+            _watch = new Stopwatch();
         }
 
-        public override void Render()
+        public override void Draw()
         {
-            if (BorderTemplate != null) PrintUtils.PrintBorder(Left, Top, Width, Height, BorderTemplate, BorderColor, BackgroundColor);
+            if (BorderTemplate != null) PrintUtils.PrintBorder(OriginLeft + Left, OriginTop + Top, Width, Height, BorderTemplate, BorderColor, BackgroundColor);
         }
 
         private void EnterKeyEvent()
         {
-            _index = 0;
+            _watch.Stop();
+            if (_watch.Elapsed.TotalMilliseconds > 200)
+            {
+
+                _index = 0;
             
-            PrintUtils.PrintRect(_bufferLeft, _bufferTop, _bufferWidth, _bufferHeight, ' ', TextColor, BackgroundColor);
-            PrintUtils.PrintChar(_cursorLeft, _cursorTop, ' ', TextColor, BackgroundColor);
+                PrintUtils.PrintRect(OriginLeft + _bufferLeft, OriginTop + _bufferTop, _bufferWidth, _bufferHeight, ' ', TextColor, BackgroundColor);
+                PrintUtils.PrintChar(OriginLeft + _cursorLeft, OriginTop + _cursorTop, ' ', TextColor, BackgroundColor);
             
-            _cursorLeft = _bufferLeft;
-            _cursorTop = _bufferTop;
+                _cursorLeft = _bufferLeft;
+                _cursorTop = _bufferTop;
             
-            PrintUtils.PrintChar(_cursorLeft, _cursorTop, Cursor, TextColor, BackgroundColor);
-            Action?.Invoke();
+                PrintUtils.PrintChar(OriginLeft + _cursorLeft, OriginTop + _cursorTop, Cursor, TextColor, BackgroundColor);
+                Action?.Invoke();
+
+                _watch.Restart();
+            }
+            _watch.Start();
         }
 
         private void BackspaceKeyEvent()
@@ -105,15 +115,15 @@ namespace ConsoleUI
             {
                 _index--;
 
-                PrintUtils.PrintChar(_cursorLeft--, _cursorTop, ' ', TextColor, BackgroundColor);
+                PrintUtils.PrintChar(OriginLeft + _cursorLeft--, OriginTop + _cursorTop, ' ', TextColor, BackgroundColor);
 
                 if (_cursorLeft == _bufferLeft && _cursorTop > _bufferTop)
                 {
-                    PrintUtils.PrintChar(_cursorLeft, _cursorTop--, ' ', TextColor, BackgroundColor);
+                    PrintUtils.PrintChar(OriginLeft + _cursorLeft, OriginTop + _cursorTop--, ' ', TextColor, BackgroundColor);
                     _cursorLeft = _bufferLeft + _bufferWidth;
                 }
 
-                PrintUtils.PrintChar(_cursorLeft, _cursorTop, Cursor, TextColor, BackgroundColor);
+                PrintUtils.PrintChar(OriginLeft + _cursorLeft, OriginTop + _cursorTop, Cursor, TextColor, BackgroundColor);
 
             }
         }
@@ -125,7 +135,7 @@ namespace ConsoleUI
             {
                 if(_cursorLeft == _bufferLeft + _bufferWidth)
                 {
-                    PrintUtils.PrintChar(_cursorLeft, _cursorTop, ' ', TextColor, BackgroundColor);
+                    PrintUtils.PrintChar(OriginLeft + _cursorLeft, OriginTop + _cursorTop, ' ', TextColor, BackgroundColor);
                     _cursorTop++;
                     _cursorLeft = _bufferLeft;
                 }
@@ -135,8 +145,8 @@ namespace ConsoleUI
                 Console.ForegroundColor = TextColor;
                 Console.BackgroundColor = BackgroundColor;
 
-                PrintUtils.PrintChar(_cursorLeft++, _cursorTop, ch, TextColor, BackgroundColor);
-                PrintUtils.PrintChar(_cursorLeft, _cursorTop, Cursor, TextColor, BackgroundColor);
+                PrintUtils.PrintChar(OriginLeft + _cursorLeft++, OriginTop + _cursorTop, ch, TextColor, BackgroundColor);
+                PrintUtils.PrintChar(OriginLeft + _cursorLeft, OriginTop + _cursorTop, Cursor, TextColor, BackgroundColor);
 
             }
         }

@@ -1,14 +1,15 @@
-﻿using System.Diagnostics;
+﻿using ConsoleUI.Interfaces;
 
-namespace ConsoleUI
+namespace ConsoleUI.Inputs
 {
     public delegate void ActionEventHandler();
 
-    public class Controller : Activatable
+    public class Controller : IActivatable
     {
         private Dictionary<ConsoleKey, ActionEventHandler?> _keyEventsDict = new Dictionary<ConsoleKey, ActionEventHandler?>();
 
-        public override bool Active
+        private bool _active;
+        public bool Active
         {
             get => _active;
             set
