@@ -81,8 +81,8 @@ namespace ConsoleUI.Elements
             if (upKey != null) _controller.AddKeyEvent((ConsoleKey)upKey, ProcessUpKey);
             if (downKey != null) _controller.AddKeyEvent((ConsoleKey) downKey, ProcessDownKey);
 
-            BorderColor = ConsoleColor.Magenta;
-            BorderTemplate = Assets.Border1;
+            BorderColor = ConsoleColor.DarkMagenta;
+            BorderTemplate = Assets.Border3;
             BackgroundColor = ConsoleColor.Black;
         }
 

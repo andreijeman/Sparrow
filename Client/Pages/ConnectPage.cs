@@ -40,7 +40,10 @@ namespace Client.Pages
 
         public void Resize(int windowWidth, int windowHeight)
         {
-
+            _table.Left = (windowWidth - _table.Width) / 2;
+            _table.Top = (windowHeight - _table.Height) / 2;
+            Console.Clear();
+            _table.Draw();
         }
     }
 }

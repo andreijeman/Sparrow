@@ -22,12 +22,10 @@ namespace Client.Pages
                 {
                     if (Console.WindowWidth != initialWidth || Console.WindowHeight != initialHeight)
                     {
-
                         initialWidth = Console.WindowWidth;
                         initialHeight = Console.WindowHeight;
 
                         ResizeEvent?.Invoke(initialWidth, initialHeight);
-
                     }
 
                 await Task.Delay(100);

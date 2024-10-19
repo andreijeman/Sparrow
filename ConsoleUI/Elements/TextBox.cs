@@ -4,6 +4,8 @@ using System.Diagnostics;
 
 namespace ConsoleUI.Elements
 {
+    public delegate void TextEventHandler(string text); 
+
     public class TextBox : BaseElement
     {
         private char[] _buffer;
@@ -21,7 +23,7 @@ namespace ConsoleUI.Elements
         public ConsoleColor TextColor { get; set; }
         public ConsoleColor BackgroundColor { get; set; }
 
-        public ActionEventHandler? Action;
+        public TextEventHandler? Action;
         public override bool Active
         {
             get => _active;
@@ -58,8 +60,9 @@ namespace ConsoleUI.Elements
             get => _left;
             set
             {
-                _bufferLeft += value - _left;
-                _cursorLeft = _bufferLeft;
+                int diff = value - _left;
+                _bufferLeft += diff;
+                _cursorLeft += diff;
                 _left = value;
             }
         }
@@ -69,8 +72,9 @@ namespace ConsoleUI.Elements
             get => _top;
             set
             {
-                _bufferTop += value - _top;
-                _cursorTop = _bufferTop;
+                int diff = value - _top;
+                _bufferTop += diff;
+                _cursorTop += diff;
                 _top = value;
             }
         }
@@ -103,6 +107,9 @@ namespace ConsoleUI.Elements
         public override void Draw()
         {
             if (BorderTemplate != null) PrintUtils.PrintBorder(Left, Top, Width, Height, BorderTemplate, BorderColor, BackgroundColor);
+            var text = TextUtils.GetFittedText(_bufferWidth, _bufferHeight, new string(_buffer, 0, _index));
+            PrintUtils.PrintText(_bufferLeft, _bufferTop, text, TextColor, BackgroundColor);
+            
         }
 
         private void EnterKeyEvent()
@@ -120,7 +127,7 @@ namespace ConsoleUI.Elements
                 _cursorTop = _bufferTop;
             
                 PrintUtils.PrintChar(_cursorLeft, _cursorTop, Cursor, TextColor, BackgroundColor);
-                Action?.Invoke();
+                Action?.Invoke(new string(_buffer, 0, _index + 1));
 
                 _watch.Restart();
             }
