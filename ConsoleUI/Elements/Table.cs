@@ -106,7 +106,7 @@ namespace ConsoleUI.Elements
             }
         }
 
-        public void ProcessRightKey()
+        private void ProcessRightKey()
         {
             int temp = _currentColumn;
 
@@ -124,7 +124,7 @@ namespace ConsoleUI.Elements
             }
         }
 
-        public void ProcessLeftKey()
+        private void ProcessLeftKey()
         {
             int temp = _currentColumn;
 
@@ -142,7 +142,7 @@ namespace ConsoleUI.Elements
             }
         }
 
-        public void ProcessUpKey()
+        private void ProcessUpKey()
         {
             int temp = _currentRow;
 
@@ -160,7 +160,7 @@ namespace ConsoleUI.Elements
             }
         }
 
-        public void ProcessDownKey()
+        private void ProcessDownKey()
         {
             int temp = _currentRow;
 

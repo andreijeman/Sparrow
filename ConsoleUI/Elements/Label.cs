@@ -10,8 +10,7 @@ namespace ConsoleUI.Elements
             set
             {
                 _active = value;
-                if (value) DrawHovered();
-                else Draw();
+                Draw();
             }
         }
 
@@ -33,10 +32,11 @@ namespace ConsoleUI.Elements
 
         public override void Draw()
         {
-            PrintUtils.PrintText(Left, Top, _text, TextColor, BackgroundColor);
+            if(_active) DrawHovered();
+            else PrintUtils.PrintText(Left, Top, _text, TextColor, BackgroundColor);
         }
 
-        public void DrawHovered()
+        private void DrawHovered()
         {
             PrintUtils.PrintText(Left, Top, _text, BackgroundColor, TextColor);
         }

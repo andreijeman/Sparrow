@@ -29,8 +29,8 @@ namespace ConsoleUI.Elements
             get => _active;
             set
             {
-                _controller.Active = value;
                 _active = value;
+                _controller.Active = value;
                 if (value)
                 {
                     KeyInput.KeyEvent += ProcessKey;
@@ -101,7 +101,7 @@ namespace ConsoleUI.Elements
             _controller.AddKeyEvent(ConsoleKey.Enter, EnterKeyEvent);
             _controller.AddKeyEvent(ConsoleKey.Backspace, BackspaceKeyEvent);
 
-            _watch = new Stopwatch();
+            _watch = Stopwatch.StartNew();
         }
 
         public override void Draw()
@@ -117,9 +117,6 @@ namespace ConsoleUI.Elements
             _watch.Stop();
             if (_watch.Elapsed.TotalMilliseconds > 200)
             {
-
-                _index = 0;
-            
                 PrintUtils.PrintRect(_bufferLeft, _bufferTop, _bufferWidth, _bufferHeight, ' ', TextColor, BackgroundColor);
                 PrintUtils.PrintChar(_cursorLeft, _cursorTop, ' ', TextColor, BackgroundColor);
             
@@ -127,7 +124,9 @@ namespace ConsoleUI.Elements
                 _cursorTop = _bufferTop;
             
                 PrintUtils.PrintChar(_cursorLeft, _cursorTop, Cursor, TextColor, BackgroundColor);
-                Action?.Invoke(new string(_buffer, 0, _index + 1));
+                Action?.Invoke(new string(_buffer, 0, _index));
+
+                _index = 0;
 
                 _watch.Restart();
             }
@@ -172,7 +171,6 @@ namespace ConsoleUI.Elements
 
                 PrintUtils.PrintChar(_cursorLeft++, _cursorTop, ch, TextColor, BackgroundColor);
                 PrintUtils.PrintChar(_cursorLeft, _cursorTop, Cursor, TextColor, BackgroundColor);
-
             }
         }
     }

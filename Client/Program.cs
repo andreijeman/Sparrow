@@ -12,9 +12,11 @@ namespace Client
         public static void Main(string[] args)
         {
             //Test1(); 
-            Console.Clear();
-            ConnectPage page = new ConnectPage();
-            page.Show();
+            //Console.Clear();
+            //ConnectPage page = new ConnectPage();
+            //page.Show();
+            Test1();
+
             Thread.Sleep(100000);
         }
 
@@ -55,6 +57,18 @@ namespace Client
         {
             Console.SetCursorPosition(0, 0);
             Console.WriteLine("Hello World!");
+        }
+
+        public static void Test1()
+        {
+            Table table = new Table(2, 1, 4, 2, null, null, null, ConsoleKey.Tab);
+            Scroll scroll = new Scroll(20, 20, ConsoleKey.UpArrow, ConsoleKey.DownArrow) { Left = 0, Top = 0 }; 
+            TextBox textBox = new TextBox(20, 4) { Left = 0, Top = 20, Action = scroll.AddText }; 
+            
+            table.AddElement(0, 0, scroll);
+            table.AddElement(1, 0, textBox);
+            table.Draw();
+            table.Active = true;
         }
 
        

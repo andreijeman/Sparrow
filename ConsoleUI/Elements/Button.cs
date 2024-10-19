@@ -34,8 +34,9 @@ namespace ConsoleUI.Elements
             {
                 _active = value;
                 _controller.Active = value;
-                if (value) { DrawHoverred(); _watch.Start(); }
-                else { Draw(); _watch.Stop(); }
+                if (value) _watch.Start(); 
+                else _watch.Stop(); 
+                Draw();
             }
         }
         
@@ -71,31 +72,34 @@ namespace ConsoleUI.Elements
             _controller.AddKeyEvent(ConsoleKey.Enter, ProcessEnterKey);
             _controller.AddKeyEvent(ConsoleKey.Spacebar, ProcessEnterKey);
 
-            _watch = new Stopwatch(); 
+            _watch = Stopwatch.StartNew(); 
         }
 
         public override void Draw()
         {
-            PrintUtils.PrintRect(Left, Top, Width, Height, ' ', IdleColor, IdleColor);
-
-            PrintUtils.PrintText(_textLeft, _textTop, _text, TextColor, IdleColor);
+            if(_active) DrawHoverred();
+            else 
+            {
+                PrintUtils.PrintRect(Left, Top, Width, Height, ' ', IdleColor, IdleColor);
+                PrintUtils.PrintText(_textLeft, _textTop, _text, TextColor, IdleColor);
+            }
         }
 
-        public void DrawHoverred()
+        private void DrawHoverred()
         {
             PrintUtils.PrintRect(Left, Top, Width, Height, ' ', HoveredColor, HoveredColor);
 
             PrintUtils.PrintText(_textLeft, _textTop, _text, TextColor, HoveredColor);
         }
 
-        public void DrawPressed()
+        private void DrawPressed()
         {
             PrintUtils.PrintRect(Left, Top, Width, Height, ' ', PressedColor, PressedColor);
 
             PrintUtils.PrintText(_textLeft, _textTop, _text, TextColor, PressedColor);
         }
 
-        public void ProcessEnterKey()
+        private void ProcessEnterKey()
         {
             _watch.Stop();
             if(_watch.Elapsed.TotalMilliseconds > 200)
