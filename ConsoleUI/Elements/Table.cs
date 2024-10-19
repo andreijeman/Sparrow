@@ -26,65 +26,63 @@ namespace ConsoleUI.Elements
             }
         }
 
-        private int _originLeft;
-        public override int OriginLeft 
+        public override int Left 
         { 
-            get => _originLeft; 
+            get => _left; 
             set
             {
-                _originLeft = value;
                 for (int i = 0; i < Rows; i++)
                 {
                     for (int j = 0; j < Columns; j++)
                     {
                         if (_grid[i, j] != null)
                         {
-                            _grid[i, j].OriginLeft = _originLeft + Left + MarginLeft;
+                            _grid[i, j].Left += value - _left;
                         }
                     }
                 }
+                _left = value;
             }
         }
 
-        private int _originTop;
-        public override int OriginTop
+        public override int Top
         {
-            get => _originTop;
+            get => _top;
             set
             {
-                _originTop = value;
                 for (int i = 0; i < Rows; i++)
                 {
                     for (int j = 0; j < Columns; j++)
                     {
                         if (_grid[i, j] != null)
                         {
-                            _grid[i, j].OriginTop = _originTop + Top + MarginTop;
+                            _grid[i, j].Top += value - _top;
                         }
                     }
                 }
+                _top = value;
             }
         }
 
         public int MarginLeft { get; init; }
         public int MarginTop { get; init; }
 
-        public Table(int left,int top, int rows, int columns, int marginLeft, int maringTop, ConsoleKey? leftkey, ConsoleKey? rightKey, ConsoleKey? upKey, ConsoleKey? downKey) : base(left, top, 0, 0)
+        public Table(int rows, int columns, int marginLeft, int marginTop, ConsoleKey? leftkey, ConsoleKey? rightKey, ConsoleKey? upKey, ConsoleKey? downKey) : base(0, 0)
         {
             Rows = rows;
             Columns = columns;
             _grid = new BaseElement[rows, columns];
 
             MarginLeft = marginLeft;
-            MarginTop = maringTop;
+            MarginTop = marginTop;
 
             if(leftkey != null) _controller.AddKeyEvent((ConsoleKey)leftkey, ProcessLeftKey);
             if (rightKey != null) _controller.AddKeyEvent((ConsoleKey)rightKey, ProcessRightKey);
             if (upKey != null) _controller.AddKeyEvent((ConsoleKey)upKey, ProcessUpKey);
             if (downKey != null) _controller.AddKeyEvent((ConsoleKey) downKey, ProcessDownKey);
 
-            BorderColor = ConsoleColor.DarkMagenta;
-            BorderTemplate = Assets.Border2;
+            BorderColor = ConsoleColor.Magenta;
+            BorderTemplate = Assets.Border1;
             BackgroundColor = ConsoleColor.Black;
         }
 
@@ -92,15 +90,19 @@ namespace ConsoleUI.Elements
         {
             if(row >= 0 && row < Rows && column >= 0 && column < Columns)
             {
-                element.OriginLeft = OriginLeft + Left + MarginLeft;
-                element.OriginTop = OriginTop + Top + MarginTop;
+                int temp = element.Left + element.Width + 2 * MarginLeft;
+                if(Width < temp) Width = temp;
+
+                temp = element.Top + element.Height + 2 * MarginTop;
+                if(Height < temp) Height = temp;
+
+                element.Left += Left + MarginLeft;
+                element.Top += Top + MarginTop;
 
                 _grid[row, column] = element;
                 //_currentRow = row;
                 //_currentColumn = column;
 
-                if(Width < element.Left + element.Width + 2 * MarginLeft) Width = element.Left + element.Width + 2 * MarginLeft;  
-                if(Height < element.Top + element.Height + 2 * MarginTop) Height = element.Top + element.Height + 2 * MarginTop;
             }
         }
 
@@ -178,8 +180,8 @@ namespace ConsoleUI.Elements
 
         public override void Draw()
         {
-            PrintUtils.PrintRect(OriginLeft + Left, OriginTop + Top, Width, Height, ' ', BackgroundColor, BackgroundColor);
-            PrintUtils.PrintBorder(OriginLeft + Left, OriginTop + Top, Width, Height, BorderTemplate, BorderColor, BackgroundColor);
+            PrintUtils.PrintRect(Left, Top, Width, Height, ' ', BackgroundColor, BackgroundColor);
+            PrintUtils.PrintBorder(Left, Top, Width, Height, BorderTemplate, BorderColor, BackgroundColor);
 
             for(int i = 0; i < Rows; i++)
             {

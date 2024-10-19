@@ -57,34 +57,6 @@ namespace Client
             Console.WriteLine("Hello World!");
         }
 
-        public static void Test1()
-        {
-            int r = 3, c = 2, s = 4;
-            Table childTable = new Table(0, 0, r, c, 2, 1, ConsoleKey.LeftArrow, ConsoleKey.RightArrow, ConsoleKey.UpArrow, ConsoleKey.DownArrow);
-
-            for (int i = 0; i < r; i++)
-            {
-                for (int j = 0; j < c; j++)
-                {
-                    Button el;
-                    el = new Button(s * 2 * j + 2 * j, s * i + i, s * 2, s);
-                    el.Action = HelloButtonAction;
-                    childTable.AddElement(i, j, el);
-                }
-            }
-
-
-            Table parentTable = new Table(0, 0, 1, 2, 2, 1, ConsoleKey.Tab, null, null, null);
-            TextBox textBox = new TextBox(24, 0, 20, 16);
-
-
-            parentTable.AddElement(0, 0, childTable);
-            parentTable.AddElement(0, 1, textBox);
-
-            parentTable.Active = true;
-            parentTable.OriginLeft = 20;
-            parentTable.OriginTop = 5;
-            parentTable.Draw();
-        }
+       
     }
 }

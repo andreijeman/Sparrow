@@ -7,17 +7,16 @@ namespace ConsoleUI.Elements
     {
         protected Controller _controller = new Controller();
 
-        public virtual int OriginLeft { get; set; }
-        public virtual int OriginTop { get; set; }
-        public int Left { get; protected set; }
-        public virtual int Top { get; protected set; }
+        protected int _left;
+        protected int _top;
+
+        public virtual int Left { get => _left; set => _left = value; }
+        public virtual int Top { get => _top; set => _top = value; }
         public virtual int Width { get; protected set; }
         public virtual int Height { get; protected set; }
 
-        public BaseElement(int left, int top, int width, int height)
+        public BaseElement(int width, int height)
         {
-            Left = left;
-            Top = top;
             Width = width;
             Height = height;
         }
