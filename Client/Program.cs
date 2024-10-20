@@ -63,7 +63,9 @@ namespace Client
         {
             Table table = new Table(2, 1, 4, 2, null, null, null, ConsoleKey.Tab);
             Scroll scroll = new Scroll(20, 20, ConsoleKey.UpArrow, ConsoleKey.DownArrow) { Left = 0, Top = 0 }; 
-            TextBox textBox = new TextBox(20, 4) { Left = 0, Top = 20, Action = scroll.AddText }; 
+            TextBox textBox = new TextBox(20, 4) { Left = 0, Top = 20, Action = scroll.AddText };
+
+            for (int i = 0; i < 40; i++) scroll.AddText(i.ToString());
             
             table.AddElement(0, 0, scroll);
             table.AddElement(1, 0, textBox);

@@ -115,7 +115,7 @@ namespace ConsoleUI.Elements
         private void EnterKeyEvent()
         {
             _watch.Stop();
-            if (_watch.Elapsed.TotalMilliseconds > 200)
+            if (_watch.Elapsed.TotalMilliseconds > 100)
             {
                 PrintUtils.PrintRect(_bufferLeft, _bufferTop, _bufferWidth, _bufferHeight, ' ', TextColor, BackgroundColor);
                 PrintUtils.PrintChar(_cursorLeft, _cursorTop, ' ', TextColor, BackgroundColor);
