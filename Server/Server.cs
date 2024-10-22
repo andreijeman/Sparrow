@@ -3,6 +3,7 @@ using System.Net;
 
 using NetworkSocket;
 using Logger;
+using Server.Postman;
 
 namespace Server
 {
@@ -83,7 +84,7 @@ namespace Server
             {
                 _ = Task.Run(async () =>
                 {
-                    _logger.LogInfo($"Socket({SocketUtils.GetIp(socket)}) authenticated.");
+                    _logger.LogInfo($"Socket({SocketUtils.GetIp(socket)}) authenticated. Sender: {packet.Sender}.");
                     await AddClient(socket, packet.Sender);
                     await _postman.SendPacketAsync(new Packet("Server", Label.Data, Status.Ok), socket);
                     await SendBroadcastAsync(new Packet("packet.Sender", Label.Connected, ""));
@@ -91,7 +92,10 @@ namespace Server
             }
             else
             {
-                _logger.LogInfo($"Socket({SocketUtils.GetIp(socket)}) authentication rejected. Client: {packet.Sender}.");
+                await _postman.SendPacketAsync(new Packet("Server", Label.Data, Status.Unauthorized), socket);
+                _logger.LogInfo($"Socket({SocketUtils.GetIp(socket)}) authentication rejected. Sender: {packet.Sender}.");
+                socket.Shutdown(SocketShutdown.Both);
+                socket.Close();
                 throw new Exception("Socket authentication rejected");
             }
             
@@ -107,6 +111,7 @@ namespace Server
                 {
                     Packet packet = await _postman.ReceivePacketAsync(socket);
                     packet = new Packet(sender, Label.Message, packet.Data);
+                    _logger.LogInfo($"{sender}:{packet.Data}");
                     _ = Task.Run(async () => await SendBroadcastAsync(packet));
                 }
                 catch (Exception ex)

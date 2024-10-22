@@ -1,20 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Sockets;
+﻿using System.Net.Sockets;
 using System.Net;
 
-
 using NetworkSocket;
-using Server;
+using Server.Postman;
 using Logger;
-using System.Globalization;
 
 namespace Client
 {
     public class Client
     {
-        private Socket socket;
+        private Socket _socket;
         private Postman<Packet> _postman;
         private ILogger _logger;
 
@@ -23,20 +18,20 @@ namespace Client
 
         public Client(ILogger logger)
         {
-            socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            _socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             _postman = new Postman<Packet>(new Codec(), 1024);
             _logger = logger;
         }
 
-        public async Task<bool> ConnectToServerAsync(IPAddress ip, int port, string password, string username)
+        public async Task<bool> ConnectToServerAsync(string ip, string port, string password, string username)
         {
             try
             {
-                socket.Connect(new IPEndPoint(ip, port));
+                _socket.Connect(new IPEndPoint(IPAddress.Parse(ip), int.Parse(port)));
+                await _postman.SendPacketAsync(new Packet(username, Label.Data, password), _socket);
+                Packet packet = await _postman.ReceivePacketAsync(_socket);
 
-                await _postman.SendPacketAsync(new Packet(username, Label.Data, password), socket);
-                Packet packet = await _postman.ReceivePacketAsync(socket);
-                
+                _logger.LogInfo(packet.ToString());
                 return packet.Data == Status.Ok;
             }
             catch(Exception ex) 
@@ -53,11 +48,13 @@ namespace Client
 
         public async Task ReceivePacketsAsync()
         {
-            while (true)
+            while (_socket.Connected)
             {
                 try
                 {
-                    Packet packet = await _postman.ReceivePacketAsync(socket);
+                    Packet packet = await _postman.ReceivePacketAsync(_socket);
+                    Console.SetCursorPosition(0, 0);
+                    Console.WriteLine(packet.Data);
                     PacketReceivedEvent?.Invoke(packet);
                 }
                 catch (Exception ex)
@@ -71,7 +68,7 @@ namespace Client
 
         public async Task SendPacketAsync(Packet packet)
         {
-            await _postman.SendPacketAsync(packet, socket);
+            await _postman.SendPacketAsync(packet, _socket);
         }
     }
 }

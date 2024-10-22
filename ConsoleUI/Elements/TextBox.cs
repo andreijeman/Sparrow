@@ -24,6 +24,9 @@ namespace ConsoleUI.Elements
         public ConsoleColor BackgroundColor { get; set; }
 
         public TextEventHandler? Action;
+
+        public string Text { get => new string(_buffer, 0, _index); }
+
         public override bool Active
         {
             get => _active;
@@ -33,6 +36,7 @@ namespace ConsoleUI.Elements
                 _controller.Active = value;
                 if (value)
                 {
+                    _watch.Start();
                     KeyInput.KeyEvent += ProcessKey;
 
                     Task.Run(async () =>
@@ -49,6 +53,7 @@ namespace ConsoleUI.Elements
                 }
                 else
                 {
+                    _watch.Stop();
                     PrintUtils.PrintChar(_cursorLeft, _cursorTop, ' ', TextColor, BackgroundColor);
                     KeyInput.KeyEvent -= ProcessKey;
                 }
@@ -101,7 +106,7 @@ namespace ConsoleUI.Elements
             _controller.AddKeyEvent(ConsoleKey.Enter, EnterKeyEvent);
             _controller.AddKeyEvent(ConsoleKey.Backspace, BackspaceKeyEvent);
 
-            _watch = Stopwatch.StartNew();
+            _watch = new Stopwatch();
         }
 
         public override void Draw()
@@ -124,7 +129,7 @@ namespace ConsoleUI.Elements
                 _cursorTop = _bufferTop;
             
                 PrintUtils.PrintChar(_cursorLeft, _cursorTop, Cursor, TextColor, BackgroundColor);
-                Action?.Invoke(new string(_buffer, 0, _index));
+                Action?.Invoke(Text);
 
                 _index = 0;
 

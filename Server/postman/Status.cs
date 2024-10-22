@@ -1,4 +1,4 @@
-﻿namespace Server
+﻿namespace Server.Postman
 {
     public static class Status
     {

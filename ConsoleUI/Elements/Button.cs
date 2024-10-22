@@ -32,8 +32,8 @@ namespace ConsoleUI.Elements
             get => _active;
             set
             {
-                _active = value;
                 _controller.Active = value;
+                _active = value;
                 if (value) _watch.Start(); 
                 else _watch.Stop(); 
                 Draw();
@@ -72,7 +72,7 @@ namespace ConsoleUI.Elements
             _controller.AddKeyEvent(ConsoleKey.Enter, ProcessEnterKey);
             _controller.AddKeyEvent(ConsoleKey.Spacebar, ProcessEnterKey);
 
-            _watch = Stopwatch.StartNew(); 
+            _watch = new Stopwatch();
         }
 
         public override void Draw()

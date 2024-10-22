@@ -1,7 +1,7 @@
 ﻿using NetworkSocket;
 using System.Text;
 
-namespace Server
+namespace Server.Postman
 {
     public class Codec : ICodec<Packet>
     {
@@ -13,7 +13,7 @@ namespace Server
         public Packet Unpack(byte[] data, int index, int count)
         {
             string str = Encoding.ASCII.GetString(data, index, count);
-            string[] strs = str.Split(new char[] { ':' }, 2);
+            string[] strs = str.Split(new char[] { ':' }, 3);
             
             if (strs.Length == 3) return new Packet(strs[0], strs[1], strs[2]);
             else throw new Exception("Invalid packet");

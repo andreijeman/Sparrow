@@ -1,4 +1,5 @@
 ﻿using ConsoleUI.Utils;
+using ConsoleUI.Inputs;
 
 namespace ConsoleUI.Elements
 {
@@ -20,9 +21,9 @@ namespace ConsoleUI.Elements
             get => _active;
             set
             {
-                _active = value;
                 _controller.Active = value; 
                 _grid[_currentRow, _currentColumn].Active = value;
+                _active = value;
             }
         }
 
@@ -100,8 +101,8 @@ namespace ConsoleUI.Elements
                 element.Top += Top + MarginTop;
 
                 _grid[row, column] = element;
-                //_currentRow = row;
-                //_currentColumn = column;
+                _currentRow = row;
+                _currentColumn = column;
 
             }
         }

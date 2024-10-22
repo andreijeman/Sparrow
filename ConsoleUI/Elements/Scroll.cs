@@ -152,5 +152,11 @@ namespace ConsoleUI.Elements
             }
             _watch.Start();
         }
+
+        public void SetText(string text)
+        {
+            _lines.Clear();
+            AddText(text);
+        }
     }
 }
