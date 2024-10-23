@@ -4,7 +4,7 @@ namespace Client.Pages
 {
     public class ConnectPage : BasePage
     {
-        public delegate Task<bool> ConnectEventHandler(string ip, string port, string password, string username);
+        public delegate Task ConnectEventHandler(string ip, string port, string password, string username);
         public event ConnectEventHandler? ConnectEvent;
 
         private Table _table;
@@ -15,7 +15,7 @@ namespace Client.Pages
 
         public ConnectPage() 
         {
-            _table = new Table(9, 1, 14, 2, null, null, ConsoleKey.UpArrow, ConsoleKey.DownArrow) { Left = 35, Top = 3 };
+            _table = new Table(9, 1, 14, 2, null, null, ConsoleKey.UpArrow, ConsoleKey.DownArrow);
             _serverIp = new TextBox(20, 3) { Left = 0, Top = 1 };
             _serverPort = new TextBox(20, 3) { Left = 0, Top = 5 };
             _serverPassword = new TextBox(20, 3) { Left = 0, Top = 9 };
@@ -36,21 +36,32 @@ namespace Client.Pages
 
         public override void Show()
         {
+            Console.BackgroundColor = ConsoleColor.Black;
+            Console.Clear();
             _table.Draw();
+        }
+        public override void Run()
+        {
+            ResizeTask.ResizeEvent += Resize;
             _table.Active = true;
+            Resize(Console.WindowWidth, Console.WindowHeight);
         }
 
         public override void Close()
         {
             _table.Active = false;
+            ResizeTask.ResizeEvent -= Resize;   
         }
 
         public override void Resize(int windowWidth, int windowHeight)
         {
-            _table.Left = (windowWidth - _table.Width) / 2;
-            _table.Top = (windowHeight - _table.Height) / 2;
-            Console.Clear();
-            _table.Draw();
+            int temp = (windowWidth - _table.Width) / 2;
+            _table.Left = temp < 0 ? 0 : temp;
+
+            temp = (windowHeight - _table.Height) / 2;
+            _table.Top = temp < 0 ? 0 : temp;
+            Show();
         }
+
     }
 }

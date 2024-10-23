@@ -21,9 +21,9 @@ namespace ConsoleUI.Elements
             get => _active;
             set
             {
-                _controller.Active = value; 
-                _grid[_currentRow, _currentColumn].Active = value;
                 _active = value;
+                _grid[_currentRow, _currentColumn].Active = value;
+                _controller.Active = value; 
             }
         }
 

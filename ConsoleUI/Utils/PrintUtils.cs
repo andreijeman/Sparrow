@@ -69,7 +69,7 @@
 
         public static void PrintChar(int left, int top, char texture, ConsoleColor foregroundColor, ConsoleColor backgroundColor)
         {
-            if(left < Console.BufferWidth)
+            if(left < Console.BufferWidth && top < Console.BufferHeight)
             {
                 if(Console.ForegroundColor != foregroundColor) Console.ForegroundColor = foregroundColor;
                 if(Console.BackgroundColor != backgroundColor) Console.BackgroundColor = backgroundColor;

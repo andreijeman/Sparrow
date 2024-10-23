@@ -2,7 +2,7 @@
 using System.Net.Sockets;
 
 
-namespace NetworkSocket
+namespace Network
 {
     public static class SocketUtils
     {

@@ -15,13 +15,13 @@ namespace Client.Pages
             set
             {
                 _currentPage?.Close();
-                Thread.Sleep(100);
                 _currentPage = value;
-                _currentPage?.Show();
+                _currentPage?.Run();
             }
         }
 
         public abstract void Show();
+        public abstract void Run();
         public abstract void Close();
         public abstract void Resize(int windowWidth, int windowHeight);
     }

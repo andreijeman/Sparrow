@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace ConsoleUI.Elements
 {
@@ -78,6 +79,7 @@ namespace ConsoleUI.Elements
             {
                 _top = value;
                 _frameTop = value + 1;
+                _thumbTop = value + Top - 1;
             }
         }
 
@@ -153,10 +155,13 @@ namespace ConsoleUI.Elements
             _watch.Start();
         }
 
-        public void SetText(string text)
+        public string Text
         {
-            _lines.Clear();
-            AddText(text);
+            set
+            {
+                _lines.Clear();
+                AddText(value);
+            }
         }
     }
 }

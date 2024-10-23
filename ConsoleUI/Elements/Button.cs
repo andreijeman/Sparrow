@@ -11,7 +11,6 @@ namespace ConsoleUI.Elements
         private Stopwatch _watch;
         public ConsoleColor IdleColor { get; set; }
         public ConsoleColor HoveredColor { get; set; }
-        public ConsoleColor PressedColor { get; set; }
 
         public ConsoleColor TextColor { get; set; }
 
@@ -64,7 +63,6 @@ namespace ConsoleUI.Elements
         {
             IdleColor = ConsoleColor.Magenta;
             HoveredColor = ConsoleColor.Blue;
-            PressedColor = ConsoleColor.DarkBlue;
             TextColor = ConsoleColor.Gray;
 
             _text = new List<string>() { "Button" };
@@ -92,28 +90,12 @@ namespace ConsoleUI.Elements
             PrintUtils.PrintText(_textLeft, _textTop, _text, TextColor, HoveredColor);
         }
 
-        private void DrawPressed()
-        {
-            PrintUtils.PrintRect(Left, Top, Width, Height, ' ', PressedColor, PressedColor);
-
-            PrintUtils.PrintText(_textLeft, _textTop, _text, TextColor, PressedColor);
-        }
-
         private void ProcessEnterKey()
         {
             _watch.Stop();
             if(_watch.Elapsed.TotalMilliseconds > 200)
             {
-
-                DrawPressed();
-
-                Task.Delay(124).ContinueWith(t =>
-                {
-                    if(_active) DrawHoverred();
-                    else Draw();
-
-                    Action?.Invoke();
-                });
+                Action?.Invoke();
 
                 _watch.Restart();
             }

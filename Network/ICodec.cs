@@ -1,4 +1,4 @@
-﻿namespace NetworkSocket
+﻿namespace Network
 {
     public interface ICodec<T>
     {

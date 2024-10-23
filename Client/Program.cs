@@ -8,21 +8,24 @@ namespace Client
 {
     public class Program
     {
-        ILogger logger = new ConsoleLogger();
-        
         public static void Main(string[] args)
         {
             Client client = new Client(new LoggerPage());
-
             ConnectPage connectPage = new ConnectPage();
+            ChatPage chatPage = new ChatPage();
+
+            client.ConnectionEvent += chatPage.ConnectionAction;
+            client.PacketReceivedEvent += chatPage.PrintReceivedPacket;
+
             connectPage.ConnectEvent += client.ConnectToServerAsync;
-            BasePage.CurrentPage = connectPage;
             
+            chatPage._connectButton.Action += () => BasePage.CurrentPage = connectPage;
+            chatPage._textBox.Action += async (string text) => await client.SendPacketAsync(new Packet("", Server.Postman.Label.Message, text));
+
+            BasePage.CurrentPage = chatPage;
 
 
-
-            Thread.Sleep(10000000);
-
+            Task.Delay(9999999).Wait();
         }       
     }
 }

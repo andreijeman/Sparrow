@@ -1,7 +1,7 @@
 ﻿using System.Net.Sockets;
 using System.Net;
 
-using NetworkSocket;
+using Network;
 using Logger;
 using Server.Postman;
 
@@ -82,13 +82,9 @@ namespace Server
 
             if(packet.Data == _serverPassword && !_sendersDict.ContainsValue(packet.Sender))
             {
-                _ = Task.Run(async () =>
-                {
-                    _logger.LogInfo($"Socket({SocketUtils.GetIp(socket)}) authenticated. Sender: {packet.Sender}.");
-                    await AddClient(socket, packet.Sender);
-                    await _postman.SendPacketAsync(new Packet("Server", Label.Data, Status.Ok), socket);
-                    await SendBroadcastAsync(new Packet("packet.Sender", Label.Connected, ""));
-                });
+                _logger.LogInfo($"Socket({SocketUtils.GetIp(socket)}) authenticated. Sender: {packet.Sender}.");
+                await AddClient(socket, packet.Sender);
+                await _postman.SendPacketAsync(new Packet("Server", Label.Data, Status.Ok), socket);
             }
             else
             {
@@ -104,6 +100,13 @@ namespace Server
         private async Task HandleClientAsync(Socket socket)
         {
             string sender = _sendersDict[socket];
+            
+            await SendBroadcastAsync(new Packet(sender, Label.Connected, ""));
+
+            foreach (var item in _sendersDict)
+            {
+                if(item.Key != socket) await _postman.SendPacketAsync(new Packet(item.Value, Label.Connected, ""), socket);
+            }
 
             while (socket.Connected)
             {
@@ -111,7 +114,6 @@ namespace Server
                 {
                     Packet packet = await _postman.ReceivePacketAsync(socket);
                     packet = new Packet(sender, Label.Message, packet.Data);
-                    _logger.LogInfo($"{sender}:{packet.Data}");
                     _ = Task.Run(async () => await SendBroadcastAsync(packet));
                 }
                 catch (Exception ex)
@@ -135,7 +137,7 @@ namespace Server
             await _semaphore.WaitAsync();
             try
             {
-                await _postman.SendPacketsAsync(new Packet("Server", Label.Message, packet.Sender), _clientSockets);
+                await _postman.SendPacketsAsync(packet, _clientSockets);
             }
             finally
             {

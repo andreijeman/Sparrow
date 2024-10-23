@@ -1,7 +1,7 @@
 ﻿using System.Net.Sockets;
 using System.Net;
 
-using NetworkSocket;
+using Network;
 using Server.Postman;
 using Logger;
 
@@ -16,6 +16,9 @@ namespace Client
         public delegate void PacketReceivedEventHandler(Packet packet);
         public event PacketReceivedEventHandler? PacketReceivedEvent;
 
+        public delegate void ConnectionEventHandler(bool isConnected);
+        public event ConnectionEventHandler? ConnectionEvent;
+
         public Client(ILogger logger)
         {
             _socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
@@ -23,7 +26,7 @@ namespace Client
             _logger = logger;
         }
 
-        public async Task<bool> ConnectToServerAsync(string ip, string port, string password, string username)
+        public async Task ConnectToServerAsync(string ip, string port, string password, string username)
         {
             try
             {
@@ -31,19 +34,14 @@ namespace Client
                 await _postman.SendPacketAsync(new Packet(username, Label.Data, password), _socket);
                 Packet packet = await _postman.ReceivePacketAsync(_socket);
 
-                _logger.LogInfo(packet.ToString());
-                return packet.Data == Status.Ok;
+                ConnectionEvent?.Invoke(packet.Data == Status.Ok);
+
+                await ReceivePacketsAsync();
             }
             catch(Exception ex) 
             {
                 _logger.LogError(ex.Message);
-                return false;
             }
-        }
-
-        public void Start()
-        {
-            Task.Run(async() => await ReceivePacketsAsync());
         }
 
         public async Task ReceivePacketsAsync()
@@ -53,8 +51,6 @@ namespace Client
                 try
                 {
                     Packet packet = await _postman.ReceivePacketAsync(_socket);
-                    Console.SetCursorPosition(0, 0);
-                    Console.WriteLine(packet.Data);
                     PacketReceivedEvent?.Invoke(packet);
                 }
                 catch (Exception ex)
@@ -68,7 +64,14 @@ namespace Client
 
         public async Task SendPacketAsync(Packet packet)
         {
-            await _postman.SendPacketAsync(packet, _socket);
+            try
+            {
+                await _postman.SendPacketAsync(packet, _socket);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+            }
         }
     }
 }

@@ -35,45 +35,60 @@ namespace Client.Pages
 
         public void LogError(string message)
         {
+            _label.TextColor = ConsoleColor.Red;
             _label.Text = " Error ";
-            _scroll.SetText(message);
+            _scroll.Text = message;
             _lastPage = CurrentPage;
             CurrentPage = this;
         }
 
         public void LogInfo(string message)
         {
+            _label.TextColor = ConsoleColor.DarkGreen;
             _label.Text = " Info ";
-            _scroll.SetText(message);
+            _scroll.Text = message;
             _lastPage = CurrentPage;
             CurrentPage = this;
         }
 
         public void LogWarning(string message)
         {
+
+            _label.TextColor = ConsoleColor.DarkYellow;
             _label.Text = " Warning ";
-            _scroll.SetText(message);
+            _scroll.Text = message;
             _lastPage = CurrentPage;
             CurrentPage = this;
         }
 
-        public override void Resize(int windowWidth, int windowHeight)
+        public override void Show()
         {
-            _table.Left = (windowWidth - _table.Width) / 2;
-            _table.Top = (windowHeight - _table.Height) / 2;
+            Console.BackgroundColor = ConsoleColor.Black;
             Console.Clear();
             _table.Draw();
         }
 
-        public override void Show()
+        public override void Run()
         {
-            _table.Draw();
+            ResizeTask.ResizeEvent += Resize;
             _table.Active = true;
+            Resize(Console.WindowWidth, Console.WindowHeight);
         }
 
         public override void Close()
         {
             _table.Active = false;
+            ResizeTask.ResizeEvent -= Resize;
+        }
+
+        public override void Resize(int windowWidth, int windowHeight)
+        {
+            int temp = (windowWidth - _table.Width) / 2;
+            _table.Left = temp < 0 ? 0 : temp;
+
+            temp = (windowHeight - _table.Height) / 2;
+            _table.Top = temp < 0 ? 0 : temp;
+            Show();
         }
     }
 }
