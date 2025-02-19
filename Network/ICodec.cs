@@ -1,8 +1,7 @@
-﻿namespace Network
+﻿namespace Network;
+
+public interface ICodec<TPacket>
 {
-    public interface ICodec<T>
-    {
-        public byte[] Pack(T packet);
-        public T Unpack(byte[] data, int index, int count);
-    }
+    public byte[] Pack(TPacket packet);
+    public TPacket Unpack(byte[] data, int index, int count);
 }

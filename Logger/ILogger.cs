@@ -1,9 +1,7 @@
-﻿namespace Logger
+﻿namespace Logger;
+public interface ILogger
 {
-    public interface ILogger
-    {
-        void LogInfo(string message);
-        void LogWarning(string message);
-        void LogError(string message);
-    }
+    void LogInfo(string message);
+    void LogWarning(string message);
+    void LogError(string message);
 }

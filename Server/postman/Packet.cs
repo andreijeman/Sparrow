@@ -1,4 +1,8 @@
-﻿namespace Server.Postman
+﻿namespace Server.Postman;
+
+public struct Packet
 {
-    public record Packet(string Sender, string Label, string Data);
+    public Label Label;
+    public string Sender;
+    public string Data;
 }

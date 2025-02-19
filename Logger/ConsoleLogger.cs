@@ -1,14 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace Logger;
 
-namespace Logger
+public class ConsoleLogger : ILogger
 {
-    public class ConsoleLogger : ILogger
+    private static object _locker = new object();
+
+    public void LogInfo(string message)
     {
-        public void LogInfo(string message)
+        lock (_locker)
         {
             Console.ForegroundColor = ConsoleColor.DarkGray;
             Console.Write($"[{DateTime.Now}] ");
@@ -18,9 +16,13 @@ namespace Logger
 
             Console.ForegroundColor = ConsoleColor.White;
             Console.WriteLine(message);
-        }
 
-        public void LogWarning(string message)
+        }
+    }
+
+    public void LogWarning(string message)
+    {
+        lock (_locker)
         {
             Console.ForegroundColor = ConsoleColor.DarkGray;
             Console.Write($"[{DateTime.Now}] ");
@@ -31,8 +33,11 @@ namespace Logger
             Console.ForegroundColor = ConsoleColor.White;
             Console.WriteLine(message);
         }
+    }
 
-        public void LogError(string message)
+    public void LogError(string message)
+    {
+        lock (_locker)
         {
             Console.ForegroundColor = ConsoleColor.DarkGray;
             Console.Write($"[{DateTime.Now}] ");
@@ -41,7 +46,7 @@ namespace Logger
             Console.Write("Error: ");
 
             Console.ForegroundColor = ConsoleColor.White;
-            Console.WriteLine(message);
+            Console.WriteLine(message);            
         }
     }
 }
