@@ -44,10 +44,17 @@ public class ChatClient
         {
             _logger.LogError(ex.Message);
         }
+
+        if(_socket.Connected) _socket.ShutdownAndClose();
         return false;
     }
 
-    public async Task StartReceivePacketsAsync()
+    public void StartReceivePackets()
+    {
+        Task.Run(ReceivePacketsAsync);
+    }
+
+    public async Task ReceivePacketsAsync()
     {
         while (_socket.Connected)
         {

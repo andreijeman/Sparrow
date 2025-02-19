@@ -67,7 +67,7 @@ public class ChatServer : BaseServer
                 Socket clientSocket = await _serverSocket.AcceptAsync();
                 _ = Task.Run(async () => await AuthSocketAsync(clientSocket));
 
-                _logger.LogInfo($"New client connected -> {clientSocket.GetIp()})");
+                _logger.LogInfo($"New client connected -> {clientSocket.GetIp()}");
             }
             catch (Exception ex)
             {
@@ -100,7 +100,7 @@ public class ChatServer : BaseServer
                 await SendBroadcastAsync(new Packet { Label = Label.UserConnected, Sender = packet.Sender });
                 await AddClientAsync(clientSocket, packet.Sender);
 
-                _logger.LogInfo($"Client authenticated -> {clientSocket.GetIp()} | {packet.Sender}");
+                _logger.LogInfo($"Client authenticated -> {clientSocket.GetIp()} - {packet.Sender}");
 
                 _ = Task.Run(async () => await HandleClientAsync(clientSocket, packet.Sender));
             }
@@ -132,7 +132,7 @@ public class ChatServer : BaseServer
 
         await RemoveClientAsync(clientSocket);
         await SendBroadcastAsync(new Packet { Label = Label.UserDiconnected, Sender = clientUsername });
-        _logger.LogInfo($"Client disconnected -> {clientSocket.GetIp()} | {clientUsername}");
+        _logger.LogInfo($"Client disconnected -> {clientSocket.GetIp()} - {clientUsername}");
     }
 
     public async Task SendBroadcastAsync(Packet packet)
