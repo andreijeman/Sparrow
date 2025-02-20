@@ -122,6 +122,11 @@ public class ChatServer : BaseServer
                 packet.Sender = clientUsername;
 
                 await SendBroadcastAsync(packet);
+
+                if (packet.Label == Label.UserMessage)
+                {
+                    _logger.LogInfo($"Message from user - {packet.Sender}: {packet.Data}");
+                }
             }
             catch (Exception ex)
             {
